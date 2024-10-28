@@ -1,0 +1,155 @@
+
+
+
+
+
+.contact-section {
+    padding: 20px;
+    background-color: white;
+    
+}
+
+.contact-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+section h2{
+  margin-left: 3%;
+}
+
+form {
+    background-color: #FFD700;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 45%;
+    margin-bottom: 20px;
+    
+}
+
+form h1 {
+    text-align: center;
+    color: #fff;
+}
+
+form label {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+form input,
+form textarea {
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+form button {
+    background-color: #0000FF;
+    color: #fff;
+    padding: 10px;
+    margin-top: 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+form button:hover {
+    background-color: #00008B;
+}
+
+form .error-message {
+    color: red;
+    font-size: 0.875rem;
+    display: none;
+}
+
+form input.error,
+form textarea.error {
+    border-color: red;
+}
+
+
+
+
+.map-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.map-container iframe {
+    width: 100%;
+    border: 6px;
+    border-radius: 8px;
+    border-color: #f1c40f;
+}
+
+
+
+.testimonials {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 50px 0;
+}
+
+.faq {
+    text-align: center;
+    padding: 20px 10px;
+    width: 50%;
+    margin: 0 27%;
+    
+}
+
+.faq h2 {
+    font-size: 2em;
+    display: flex;
+    justify-content: center;
+    margin-right: 30%;
+    color: #3fa468;
+    font-weight: bold;
+    margin-left: 20%;
+}
+
+.faq-item {
+    margin: 15px 0;
+}
+
+.faq-answer {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2em;
+    text-align: left;
+    cursor: pointer;
+    border: none;
+    background-color: #eee;
+}
+
+.faq-answer.active {
+    background-color: #ddd;
+}
+
+.faq-answer-content {
+    display: none;
+    padding: 15px;
+    background-color: #fff;
+    border-top: 1px solid #ddd;
+    text-align: left;
+}
+
+.faq-answer-content.show {
+    display: block;
+}
+
+

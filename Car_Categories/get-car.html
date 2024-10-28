@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Rental Service</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../Customer_Styles/cus_Styles.css">
+</head>
+
+<body>
+    <header class="header">
+        <div class="nav">
+            <div class="logo">
+                <img src="../asset/downloadlogo.png" alt="logo">
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="../Landing_Page/index.html">Home</a></li>
+                    <li><a href="../AboutUs/about.html">About Us</a></li>
+                    <li><a href="../Car_Categories/get-car.html">Get Car</a></li>
+                    <li><a href="../Contact_us/contact.html">Contact Us</a></li>
+                    <script src="../Customer_Styles/cus_scrift.js"></script>
+                    <li><a href="../Customer_login/login.html" id="loginbtn">Login </a></li>
+
+                </ul>
+            </nav>
+            <div class="user-dropdown" >
+                User ▼
+                <div class="user-dropdown-content">
+                    <a href="../Customer_Dasboard/cust_Dasboard.html">Profile</a>
+
+                    <a href="#" id="logoutButton">Logout</a> <!-- Updated Logout link with an ID -->
+                </div>
+            </div>
+        </div>
+    </header>
+    <section class="hero">
+        <h1>The Perfect car for your next trip is just around the corner</h1>
+        <div class="search">
+            <input type="date" id="start-date">
+            <input type="time" id="start-time">
+            <input type="date" id="end-date">
+            <input type="time" id="end-time">
+            <button id="search-button">Search</button>
+        </div>
+    </section>
+    <section>
+        <div id="demo" class="demo"></div>
+    </section>
+    <main class="car-detailsclick">
+        <div id="car-details" class="hidden"></div>
+    </main>
+    <div class="content">
+        <section class="filter">
+            <h2>Filter Car</h2>
+            <form id="filter-form">
+                <label for="brand">Select Brand *</label>
+                <select id="brand" name="brand">
+                    <option value="">Select Brand</option>
+                    <option value="Toyota">Toyota</option>
+                    <option value="Lamborghini">Lamborghini</option>
+                    <option value="Nissan">Nissan</option>
+                    <option value="Audi">Audi</option>
+                    <option value="BMW">BMW</option>
+                    <option value="Mercedes-Benz">Mercedes-Benz</option>
+                    <option value="Tesla">Tesla</option>
+                    <option value="Ferrari">Ferrari</option>
+                    <option value="Rolls-Royce">Rolls-Royce</option>
+                    <option value="Ford">Ford</option>
+                </select>
+                <label for="body-type">Select Body Types</label>
+                <select id="body-type" name="body-type">
+                    <option value="">Select Body Types</option>
+                    <option value="Sedan">Sedan</option>
+                    <option value="SUV">SUV</option>
+                    <option value="Coupe">Coupe</option>
+                </select>
+                <label for="transmission">Select Transmission</label>
+                <select id="transmission" name="transmission">
+                    <option value="">Select Transmission</option>
+                    <option value="Automatic">Automatic</option>
+                    <option value="Manual">Manual</option>
+                </select>
+                <label for="fuel-type">Select Fuel Type</label>
+                <select id="fuel-type" name="fuel-type">
+                    <option value="">Select Fuel Type</option>
+                    <option value="Petrol">Petrol</option>
+                    <option value="Diesel">Diesel</option>
+                    <option value="Electric">Electric</option>
+                </select>
+                <label for="price-filter">Select Rental Price</label>
+                <select id="price-filter">
+                    <option value="all">Select Rental Price</option>
+                    <option value="200">200</option>
+                    <option value="300">300</option>
+                    <option value="400">400</option>
+                    <option value="500">500</option>
+                    <option value="650">650</option>
+                    <option value="700">700</option>
+                    <option value="1200">1200</option>
+                </select>
+                <label for="seats-number">Select seats Count</label>
+                <select id="seats-number" name="seats-number">
+                    <option value="">Select seats Count</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+                <button type="submit">Submit</button>
+            </form>
+        </section>
+        <section class="car-list" id="car-list">
+            <!-- Cars will be dynamically generated here -->
+        </section>
+    </div>
+    <footer>
+        <div class="container">
+            <div class="footer-left">
+                <h3>Car Rental Services</h3>
+                <ul>
+                    <li><a href="../customerhome/index.html">Home</a></li>
+                    <li><a href="../AboutUscustomer/about.html">About Us</a></li>
+                    <li><a href="../customerselectcar/get-car.html">Get Car</a></li>
+                    <li><a href="../contactus/contact.html">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-right">
+                <h3>Contact Info</h3>
+                <ul>
+                    <li>Address: 40/2 Madattady road, Maviddapuram.</li>
+                    <li>Email: <a href="mailto:info@carrental.com">info@gmail.com.com</a></li>
+                    <li>Phone: (+94)77-456-7890</li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+    <script src="scripts.js"></script>
+    <script src="../Customer_Styles/cus_scrift.js"></script>
+
+</body>
+
+</html>

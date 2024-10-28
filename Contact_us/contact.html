@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Rental Services - Contact Us</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="script.js"></script>
+    <link rel="stylesheet" href="../Customer_Styles/cus_Styles.css">
+
+</head>
+
+<body>
+    <header class="header">
+        <div class="nav">
+            <div class="logo">
+                <img src="../asset/downloadlogo.png" alt="logo">
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="../Landing_Page/index.html">Home</a></li>
+                    <li><a href="../AboutUs/about.html">About Us</a></li>
+                    <li><a href="../Car_Categories/get-car.html">Get Car</a></li>
+                    <li><a href="../Contact_us/contact.html">Contact Us</a></li>
+                    <li><a href="../Customer_login/login.html" id="loginbtn">Login </a></li>
+
+                </ul>
+            </nav>
+            <div class="user-dropdown">
+                User ▼
+                <div class="user-dropdown-content">
+                    <a href="../Customer_Dasboard/cust_Dasboard.html">Profile</a>
+                    <a href="#" id="logoutButton">Logout</a> 
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="contact-section">
+            <div class="contact-container">
+                <form id="contactForm">
+                    <h1>Contact Us</h1>
+                    <label for="name">Name *</label>
+                    <input type="text" id="name" name="name" placeholder="Your Name" required>
+                    <span class="error-message" id="nameError"></span>
+
+                    <label for="phone">Phone *</label>
+                    <input type="tel" id="phone" name="phone" placeholder="Your Phone Number" required>
+                    <span class="error-message" id="phoneError"></span>
+
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" placeholder="Your Email" required>
+                    <span class="error-message" id="emailError"></span>
+
+                    <label for="message">Message *</label>
+                    <textarea id="message" name="message" placeholder="Your Message" required></textarea>
+                    <span class="error-message" id="messageError"></span>
+
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+
+            <div class="map-container">
+                <!-- Embed Google Map -->
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d58365.50681240956!2d79.98067586779489!3d9.67480975620216!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3afe53fd7be66aa5%3A0xc7da0d9203baf512!2sJaffna!5e0!3m2!1sen!2slk!4v1723743372878!5m2!1sen!2slk"
+                    width="400" height="300" style="border:0;" allowfullscreen="" loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+        </section>
+
+        <section class="faq">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-item">
+                <button class="faq-answer">How do I book a car rental?</button>
+                <div class="faq-answer-content" style="display:none;">
+                    You can book a car rental through our website or by calling our customer support.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-answer">What are your rental rates?</button>
+                <div class="faq-answer-content" style="display:none;">
+                    Our rental rates vary depending on the type of car and rental duration. Please check our website for
+                    the latest rates.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-answer">How do you ensure the security of my personal information?</button>
+                <div class="faq-answer-content" style="display:none;">
+                    We use advanced security measures to protect your personal information. For more details, please
+                    refer to our Privacy Policy.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-answer">Are the cars well-maintained and safe to drive?</button>
+                <div class="faq-answer-content" style="display:none;">
+                    Yes, all our cars are regularly maintained and checked for safety.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-answer">Do I need to have a valid driving license?</button>
+                <div class="faq-answer-content" style="display:none;">
+                    Yes, a valid driving license is mandatory for renting a car.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-answer">Do you offer delivery and pickup services?</button>
+                <div class="faq-answer-content" style="display:none;">
+                    Yes, we offer delivery and pickup services for your convenience.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-answer">How can I reach your customer support team?</button>
+                <div class="faq-answer-content" style="display:none;">
+                    You can reach our customer support team via phone at (+94)77-456-7890 or email at
+                    info@gmail.com.com.
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-left">
+                <h3>Car Rental Services</h3>
+                <ul>
+                    <li><a href="../customerhome/index.html">Home</a></li>
+                    <li><a href="../AboutUscustomer/about.html">About Us</a></li>
+                    <li><a href="../customerselectcar/get-car.html">Get Car</a></li>
+                    <li><a href="../contactus/contact.html">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-right">
+                <h3>Contact Info</h3>
+                <ul>
+                    <li>Address: 40/2 Madattady road, Maviddapuram.</li>
+                    <li>Email: <a href="mailto:info@carrental.com">info@gmail.com.com</a></li>
+                    <li>Phone: (+94)77-456-7890</li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+    <script src="../Customer_Styles/cus_scrift.js"></script>
+
+
+</body>
+
+</html>

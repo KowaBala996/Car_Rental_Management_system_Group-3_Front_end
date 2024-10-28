@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Return Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="car_return.css">
+</head>
+
+<body>
+    <div class="sidebar">
+        <h2>
+            <div class="logo-container">
+                <img src="../asset/downloadlogo.png" alt="logo" class="sidebar-logo">
+            </div>
+        </h2>
+        <ul>
+            <li><a href="dashboard.html">Dashboard</a></li>
+        </ul>
+        <h2>Manage Booking</h2>
+        <ul>
+            <li><a href="booking.html">Booking</a></li>
+            <li><a href="booking_history.html">Rental History</a></li>
+            <li><a href="verify_users.html">Verify Users</a></li>
+        </ul>
+        <h2>Manage Services</h2>
+        <ul>
+            <li><a href="car_details.html">Car Details</a></li>
+
+            <li><a href="car_details.html" class="active">Return</a></li>
+        </ul>
+    </div>
+
+    <main class="content">
+        <header class="content-header">
+            <h1>Car Return</h1>
+            <div class="search-container">
+                <button id="openModalBtn" class="add-car">Open Modal</button>
+            </div>
+        </header>
+
+        <table class="car-table">
+            <thead>
+                <tr>
+                    <th>Rental Car ID</th>
+                    <th>Start Date</th>
+                    <th>Return Date</th>
+                    <th>Extra Payment</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be dynamically inserted here -->
+            </tbody>
+        </table>
+
+        <!-- Modal -->
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <span class="close" id="closeModalBtn">&times;</span>
+                <div class="container">
+                    <form id="booking-form">
+                        <h2><ion-icon name="calculator-outline"></ion-icon> Car Return</h2>
+                        
+                        <!-- Car Rental ID -->
+                        <label for="rentalCarId">Car Rental ID</label>
+                        <select id="rentalCarId" name="rentalCarId" required>
+                        </select>
+
+                        <!-- Start Date -->
+                        <label for="startDate">Start Date</label>
+                        <input type="date" id="startDate" name="startDate" required>
+
+                        <!-- Return Date -->
+                        <label for="returnDate">Return Date</label>
+                        <input type="date" id="returnDate" name="returnDate" required>
+
+                        <!-- Extra Payment -->
+                        <label for="extraPayment">Extra Payment</label>
+                        <input type="number" id="extraPayment" name="extraPayment" required>
+
+                        <div class="buttons">
+                            <button type="reset" class="btn">Reset</button>
+                            <button type="submit" class="btn">Submit</button>
+                            <button type="button" class="btn" onclick="printReceipt()">Print Receipt</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        &copy; 2024 Car Rental Services. All Rights Reserved.
+    </footer>
+
+    <script src="car_return.js"></script>
+
+</body>
+
+</html>
+

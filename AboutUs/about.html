@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Car Rental Service</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../Customer_Styles/cus_Styles.css">
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="nav">
+            <div class="logo">
+                <img src="../asset/downloadlogo.png" alt="logo">
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="../Landing_Page/index.html">Home</a></li>
+                    <li><a href="../AboutUs/about.html">About Us</a></li>
+                    <li><a href="../Car_Categories/get-car.html">Get Car</a></li>
+                    <li><a href="../Contact_us/contact.html">Contact Us</a></li>
+                    <li><a href="../Customer_login/login.html" id="loginbtn">Login </a></li>
+
+                </ul>
+            </nav>
+            <div class="user-dropdown">
+                User ▼
+                <div class="user-dropdown-content">
+                    <a href="../Customer_Dasboard/cust_Dasboard.html">Profile</a>
+
+                    <a href="#" id="logoutButton">Logout</a> <!-- Updated Logout link with an ID -->
+                </div>
+            </div>
+        </div>
+    </header>
+    <main class="about-us" style="margin-left: 200px;margin-right:200px;font-size: 25px ;">
+        <section class="intro">
+            <h1>About Us</h1>
+            <p>Welcome to Car Rental Service! We are your trusted partner for all your car rental needs, committed to
+                offering you reliable and high-quality services. With a focus on customer satisfaction, we strive to
+                make every rental experience smooth and enjoyable, ensuring you find the perfect vehicle for your
+                journey.</p>
+        </section>
+        <section class="details">
+            <h2>Our Story</h2>
+            <p>Car Rental Service was founded in 1996 by BalaThana in Jaffna. What began as a small, local business has
+                grown into a trusted name in the car rental industry. BalaThana’s dedication to providing exceptional
+                service fueled the growth of our company. Today, we proudly serve customers across the region,
+                continuing our legacy of reliability and customer-focused service.</p>
+            <h2>Our Mission</h2>
+            <p>Our mission is to provide reliable, efficient, and affordable car rental services to our customers. We
+                strive to ensure that every customer has a pleasant and hassle-free experience.</p>
+        </section>
+        <section class="values">
+            <h2>Our Values</h2>
+            <ul>
+                <li><strong>Customer Satisfaction:</strong> Our customers are our top priority.</li>
+                <li><strong>Integrity:</strong> We conduct our business with the highest level of honesty and fairness.
+                </li>
+                <li><strong>Innovation:</strong> We continually seek to improve our services and offerings.</li>
+                <li><strong>Sustainability:</strong> We are committed to environmentally friendly practices.</li>
+            </ul>
+        </section>
+        <section class="contact" style="font-size: 20px ;">
+            <h2>Contact Us</h2>
+            <p>If you have any questions or comments, please don't hesitate to contact us. You can reach us at
+                info@carrental.com or call us at (+94)77-456-7890.</p>
+        </section>
+    </main>
+    <footer>
+        <div class="container">
+            <div class="footer-left">
+                <h3>Car Rental Services</h3>
+                <ul>
+                    <li><a href="../customerhome/index.html">Home</a></li>
+                    <li><a href="../AboutUscustomer/about.html">About Us</a></li>
+                    <li><a href="../customerselectcar/get-car.html">Get Car</a></li>
+                    <li><a href="../contactus/contact.html">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-right">
+                <h3>Contact Info</h3>
+                <ul>
+                    <li>Address: 40/2 Madattady road, Maviddapuram.</li>
+                    <li>Email: <a href="mailto:info@carrental.com">info@gmail.com.com</a></li>
+                    <li>Phone: (+94)77-456-7890</li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const logoutButton = document.getElementById('logoutButton');
+
+            // Logout function to clear loggedUser from localStorage and redirect to login page
+            logoutButton.addEventListener('click', function (event) {
+                event.preventDefault(); // Prevent default link behavior
+
+                // Remove loggedUser from localStorage
+                localStorage.removeItem('loggedUser');
+
+                // Redirect to login page after logging out
+                window.location.href = '../Customer_login/login.html';
+            });
+        });
+
+    </script>
+        <script src="../Customer_Styles/cus_scrift.js"></script>
+
+</body>
+
+</html>

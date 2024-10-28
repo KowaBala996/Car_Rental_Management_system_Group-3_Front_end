@@ -1,0 +1,35 @@
+
+button a{
+    color: #fffcfc;
+    font-weight: bold;
+    text-decoration: none;
+
+}
+button a:hover {
+    text-decoration: underline;
+    color: #030101;
+}
+main {
+    padding: 20px;
+    text-align: center;
+}
+
+main h1, main h2 {
+    color: #333;
+}
+
+main p {
+    color: #666;
+    line-height: 1.6;
+}
+
+main ul {
+    list-style: none;
+    padding: 0;
+}
+
+main ul li {
+    margin: 10px 0;
+    color: #666;
+    line-height: 1.6;
+}

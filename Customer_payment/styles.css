@@ -1,0 +1,155 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+.user-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.user-dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.user-dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.user-dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.user-dropdown:hover .user-dropdown-content {
+    display: block;
+}
+
+
+
+.reminder {
+    background-color: #efc64b;
+    padding: 15px;
+    border: 1px solid #0e0e0d;
+    border-radius: 5px;
+    text-align: center;
+    font-size:18px;
+
+}
+main {
+    padding: 20px;
+}
+
+.receipt, .payment-form {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+h2 {
+    margin-bottom: 20px;
+}
+
+.receipt-details, .transaction-details, .bank-details, .payment-form fieldset {
+    margin-bottom: 20px;
+}
+
+h3 {
+    margin-bottom: 10px;
+    font-size: 1.2em;
+    border-bottom: 2px solid #333;
+    padding-bottom: 5px;
+}
+
+p {
+    margin-bottom: 10px;
+}
+
+strong {
+    font-weight: bold;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #333;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #555;
+}
+
+/* Payment Form Styles */
+.payment-form {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.payment-form fieldset {
+    border: none;
+    margin-bottom: 20px;
+}
+
+.payment-form legend {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #333;
+    padding-bottom: 5px;
+}
+
+.payment-form label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.payment-form input, .payment-form select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.payment-form button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #333;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.payment-form button:hover {
+    background-color: #555;
+}
+
+/* Bank Details Styles */
+.bank-details {
+    margin-bottom: 20px;
+}
+
+.bank-details p {
+    margin-bottom: 10px;
+}
+
+.bank-details strong {
+    font-weight: bold;
+}

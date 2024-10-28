@@ -1,0 +1,102 @@
+
+
+
+.carousel {
+    position: relative;
+    overflow: hidden;
+    height: 700px;
+    background-color: #ddd;
+}
+
+.carousel-slide {
+    width: 100%;
+    display: none;
+}
+
+.carousel-slide img {
+    width: 100%;
+    height: auto;
+}
+
+.carousel-slide.active {
+    display: block;
+}
+
+.carousel .next,
+.carousel .prev {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 10px;
+    cursor: pointer;
+    border: none;
+}
+
+.carousel .next {
+    right: 40px;
+}
+
+.carousel .prev {
+    left: 40px;
+    
+}
+
+.caption {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 5px 10px;
+    font-size: 1.2em;
+}
+
+.rent-car {
+    text-align: center;
+    padding: 20px;
+    background-color: #c9c7c7;
+}
+
+.rent-car h2 {
+    margin-bottom: 10px;
+    color: #e66d1d;
+}
+
+.rent-car p {
+    margin-bottom: 20px;
+    font-size: 1.1em;
+}
+
+.rent-car button {
+    padding: 10px 20px;
+    background-color: #ff6600;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.testimonials {
+    background-color: #f0f0f0;
+    padding: 20px;
+    text-align: center;
+    height: 30vh;
+}
+
+.testimonials h2 {
+    margin-bottom: 10px;
+}
+
+.testimonial {
+    background-color: white;
+    padding: 20px;
+    margin: 0 auto;
+    margin-top: 30px;
+    max-width: 600px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    font-size: 20px;
+}

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Details - Car Rental Services</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../Customer_Styles/cus_Styles.css">
+</head>
+
+<body>
+    <header class="header">
+        <div class="nav">
+            <div class="logo">
+                <img src="../asset/downloadlogo.png" alt="logo">
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="../Landing_Page/index.html">Home</a></li>
+                    <li><a href="../AboutUs/about.html">About Us</a></li>
+                    <li><a href="../Car_Categories/get-car.html">Get Car</a></li>
+                    <li><a href="../Contact_us/contact.html">Contact Us</a></li>
+                    <li><a href="../Customer_login/login.html" id="loginbtn">Login </a></li>
+
+                </ul>
+            </nav>
+            <div class="user-dropdown">
+                User ▼
+                <div class="user-dropdown-content">
+                    <a href="../Customer_Dasboard/cust_Dasboard.html">Profile</a>
+
+                    <a href="#" id="logoutButton">Logout</a> <!-- Updated Logout link with an ID -->
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="payment-form">
+            <div class="container">
+                <div class="reminder">
+                    <strong>Payment Reminder:</strong><br>
+                    Booking payment is <strong>Rs.1000</strong>.<br>
+                    The request is accepted only after paying the booking payment.<br>
+                    <span style="color: red;font-weight: bold;">Booking payment is non-refundable.</span>
+                </div>
+                <form id="payment-form">
+
+                    <div class="container">
+                        <h2>Car Rental Details</h2>
+                        <div id="car-details-container">
+                            <!-- Car details will be displayed here -->
+                        </div>
+                    </div>
+                    <fieldset>
+                        <legend>Payment Information</legend>
+
+                        <label for="payment-ReciptNumber">Recipt Number</label>
+                        <input type="number" id="payment-ReciptNumber" name="payment-ReciptNumber" required>
+
+                        <label for="payment-date"> Payment Date</label>
+                        <input type="date" id="payment-date" name="payment-date" required>
+
+                        <label for="payment-amount"> Booking Payment </label>
+                        <input type="number" id="payment-amount" name="payment-amount" step="1000"
+                            placeholder="Advance payment is Rs.1000 only" required>
+
+                        <label for="payment-method">Payment Method</label>
+                        <input type="text" id="payment-method" name="payment-method" required>
+                        <button type="submit">Request</button>
+
+                      
+
+                    </fieldset>
+
+                    <div class="bank-details">
+                        <h3>Bank Details</h3>
+                        <p><strong>Bank:</strong> Commercial Bank</p>
+                        <p><strong>Account Number:</strong> 8107043582</p>
+                        <p><strong>Branch:</strong> Chunnakam</p>
+                        <p><strong>Account Holder:</strong> B. Kowarthanan</p>
+                    </div>
+
+
+                </form>
+            </div>
+
+        </section>
+
+
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-left">
+                <h3>Car Rental Services</h3>
+                <ul>
+                    <li><a href="../Landing_Page/index.html">Home</a></li>
+                    <li><a href="../AboutUs/about.html">About Us</a></li>
+                    <li><a href="../Car_Categories/get-car.html">Get Car</a></li>
+                    <li><a href="../Contact_us/contact.html">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-right">
+                <h3>Contact Info</h3>
+                <ul>
+                    <li>Address: 40/2 Madattady road, Maviddapuram tellippalai, Jaffna</li>
+                    <li>Email: <a href="mailto:info@carrental.com">info@carrental.com</a></li>
+                    <li>Phone: (+94) 456-7890</li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+
+            const logoutButton = document.getElementById('logoutButton');
+
+            // Logout function to clear loggedUser from localStorage and redirect to login page
+            logoutButton.addEventListener('click', function (event) {
+                event.preventDefault(); // Prevent default link behavior
+
+                // Remove loggedUser from localStorage
+                localStorage.removeItem('loggedUser');
+
+                // Redirect to login page after logging out
+                window.location.href = '../Customer_login/login.html';
+            });
+
+
+
+            // Function to get query parameters from the URL
+            function getQueryParam(param) {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(param);
+            }
+
+            const carid = getQueryParam('carid');
+            const customerid = getQueryParam('customerid');
+
+            // Function to display car details by car ID
+            function displayCarDetailsById(carId) {
+                const carDetails = JSON.parse(localStorage.getItem('bookingCar')) || [];
+
+                const carDetail = carDetails.find(car => car.carId === carid);
+
+                if (carDetail) {
+                    const carDetailsHTML = `
+                        <p><strong>Price per Hour:</strong> Rs.${carDetail.hourlyRate}</p>
+                        <p><strong>Total Hours:</strong> ${carDetail.totalHours}</p>
+                        <p><strong>Total Price:</strong> Rs.${carDetail.totalPrice}</p>
+                    `;
+                    document.getElementById('car-details-container').innerHTML = carDetailsHTML;
+                } else {
+                    document.getElementById('car-details-container').innerHTML = '<p>No car details available for this ID.</p>';
+                }
+            }
+
+            displayCarDetailsById(carid);
+
+            // Event listener for the payment form submission
+            document.getElementById('payment-form').addEventListener('submit', function (event) {
+                event.preventDefault(); // Prevent form from submitting normally
+
+                const payment_ReciptNumber = document.getElementById('payment-ReciptNumber').value;
+                const paymentDate = document.getElementById('payment-date').value;
+                const bookingAmount = document.getElementById('payment-amount').value;
+                const paymentMethod = document.getElementById('payment-method').value;
+
+                // Generate unique payment ID using current timestamp
+                const paymentId = 'PAY_' + Math.floor(Math.random() * 1000);
+
+
+                const payment = {
+                    paymentId: paymentId,
+                    payment_ReciptNumber: payment_ReciptNumber,
+                    paymentDate: paymentDate,
+                    bookingAmount: parseFloat(bookingAmount),
+                    paymentMethod: paymentMethod,
+                    rentalCarId: carid || '',
+                    customerId: customerid,
+                };
+
+                // Fetch existing payments or initialize an empty array
+                let payments = JSON.parse(localStorage.getItem('bookingCarPayment')) || [];
+
+                // Check if payment for the same car and customer already exists
+                let isPayment = payments.find(p => p.rentalCarId === carid && p.customerId === customerid);
+
+                if (isPayment) {
+                    alert("You have already requested the same car.");
+                } else {
+                    // Add the new payment
+                    payments.push(payment);
+                    localStorage.setItem('bookingCarPayment', JSON.stringify(payments));
+                    alert('Request sent successfully!');
+                }
+            });
+        });
+    </script>
+    <script src="../Customer_Styles/cus_scrift.js"></script>
+</body>
+
+</html>
