@@ -11,11 +11,9 @@
 
 <body>
     <div class="sidebar">
-        <h2>
-            <div class="logo-container">
-                <img src="../asset/downloadlogo.png" alt="logo" class="sidebar-logo">
-            </div>
-        </h2>
+        <div class="logo-container">
+            <img src="../asset/downloadlogo.png" alt="Car Rental Services Logo" class="sidebar-logo">
+        </div>
         <ul>
             <li><a href="dashboard.html">Dashboard</a></li>
         </ul>
@@ -28,7 +26,6 @@
         <h2>Manage Services</h2>
         <ul>
             <li><a href="car_details.html">Car Details</a></li>
-
             <li><a href="car_details.html" class="active">Return</a></li>
         </ul>
     </div>
@@ -44,10 +41,11 @@
         <table class="car-table">
             <thead>
                 <tr>
-                    <th>Rental Car ID</th>
-                    <th>Start Date</th>
+                    <th>Return ID</th>
+                    <th>Rental ID</th>
                     <th>Return Date</th>
                     <th>Extra Payment</th>
+                    <th>Condition</th>
                 </tr>
             </thead>
             <tbody>
@@ -62,10 +60,11 @@
                 <div class="container">
                     <form id="booking-form">
                         <h2><ion-icon name="calculator-outline"></ion-icon> Car Return</h2>
-                        
+
                         <!-- Car Rental ID -->
                         <label for="rentalCarId">Car Rental ID</label>
                         <select id="rentalCarId" name="rentalCarId" required>
+                            <!-- Options will be dynamically populated -->
                         </select>
 
                         <!-- Start Date -->
@@ -79,6 +78,61 @@
                         <!-- Extra Payment -->
                         <label for="extraPayment">Extra Payment</label>
                         <input type="number" id="extraPayment" name="extraPayment" required>
+
+                        <!-- Condition -->
+                        <label for="condition">Condition</label>
+                        <select id="condition" name="condition" required>
+                            <option value="">Select Condition</option>
+                            <option value="Good">Good</option>
+                            <option value="Damaged">Damaged</option>
+                            <option value="Excellent">Excellent</option>
+                            <option value="Fair">Fair</option>
+                        </select>
+
+                        <div class="buttons">
+                            <button type="reset" class="btn">Reset</button>
+                            <button type="submit" class="btn">Submit</button>
+                            <button type="button" class="btn" onclick="printReceipt()">Print Receipt</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+  <!-- Modal -->
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <span class="close" id="closeModalBtn">&times;</span>
+                <div class="container">
+                    <form id="booking-form">
+                        <h2><ion-icon name="calculator-outline"></ion-icon> Car Return</h2>
+
+                        <!-- Car Rental ID -->
+                        <label for="rentalCarId">Car Rental ID</label>
+                        <select id="rentalCarId" name="rentalCarId" required>
+                            <!-- Options will be dynamically populated -->
+                        </select>
+
+                        <!-- Start Date -->
+                        <label for="startDate">Start Date</label>
+                        <input type="date" id="startDate" name="startDate" required>
+
+                        <!-- Return Date -->
+                        <label for="returnDate">Return Date</label>
+                        <input type="date" id="returnDate" name="returnDate" required>
+
+                        <!-- Extra Payment -->
+                        <label for="extraPayment">Extra Payment</label>
+                        <input type="number" id="extraPayment" name="extraPayment" required>
+
+                        <!-- Condition -->
+                        <label for="condition">Condition</label>
+                        <select id="condition" name="condition" required>
+                            <option value="">Select Condition</option>
+                            <option value="Good">Good</option>
+                            <option value="Damaged">Damaged</option>
+                            <option value="Excellent">Excellent</option>
+                            <option value="Fair">Fair</option>
+                        </select>
 
                         <div class="buttons">
                             <button type="reset" class="btn">Reset</button>
@@ -100,4 +154,3 @@
 </body>
 
 </html>
-

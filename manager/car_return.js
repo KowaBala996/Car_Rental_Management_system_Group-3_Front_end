@@ -1,67 +1,123 @@
-// Function to populate the rentalCarId select box with data from localStorage
-function populateRentalCarIdOptions() {
-    const rentalCarDetail = JSON.parse(localStorage.getItem("rentalCarDetail")) || [];
-    const rentalCarIdSelect = document.getElementById("rentalCarId");
+const addReturnDetailUrl = 'http://localhost:5255/api/ReturnDetail';
+const rentalDetailsUrl = 'http://localhost:5255/api/RentalDetail';
+const bookingDetailsUrl = 'http://localhost:5255/api/Booking';
+const returnDetailsUrl = 'http://localhost:5255/api/ReturnDetail';
 
-    rentalCarIdSelect.innerHTML = '<option value=""></option>'; // Clear existing options
+let rentalDetail = [];
+let bookingDetail = [];
+let returnDetail = [];
 
-    rentalCarDetail.forEach(booking => {
-        const option = document.createElement('option');
-        option.value = booking.rentalCarId; // Assuming rentalCarId is stored
-        option.textContent = booking.rentalCarId; // Display it
-        rentalCarIdSelect.appendChild(option);
-    });
-
-    // Event listener to update startDate input when a rentalCarId is selected
-    rentalCarIdSelect.addEventListener('change', function() {
-        const selectedRentalCarId = this.value; // Get selected rentalCarId
-        const selectedCar = rentalCarDetail.find(car => car.rentalCarId === selectedRentalCarId); // Find the selected car details
-
-        // If the selected car exists, update the startDate input with rentalDateFrom
-        if (selectedCar) {
-            document.getElementById('startDate').value = selectedCar.rentalDateFrom;
-        } else {
-            document.getElementById('startDate').value = ''; // Clear if no car found
-        }
-    });
+// Fetch rental details
+async function fetchRentalDetails() {
+    try {
+        const response = await fetch(rentalDetailsUrl);
+        rentalDetail = await response.json();
+    } catch (error) {
+        console.error('Error fetching rental details:', error);
+    }
 }
 
-// Handle form submission
-document.getElementById('booking-form').addEventListener("submit", function(event) {
-    event.preventDefault(); // Prevent form submission
-    const rentalCarId = document.getElementById('rentalCarId').value; // Get rentalCarId from the select box
-    const startDate = document.getElementById('startDate').value;
-    const returnDate = document.getElementById('returnDate').value;
-    const extraPayment = parseFloat(document.getElementById('extraPayment').value);
+// Fetch booking details
+async function fetchBookingDetails() {
+    try {
+        const response = await fetch(bookingDetailsUrl);
+        bookingDetail = await response.json();
+    } catch (error) {
+        console.error('Error fetching booking details:', error);
+    }
+}
 
-    const newBooking = {
-        rentalCarId,  // Store rentalCarId
-        startDate,
-        returnDate,
-        extraPayment,
-    };
+// Fetch return details
+async function fetchReturnDetails() {
+    try {
+        const response = await fetch(returnDetailsUrl);
+        returnDetail = await response.json();
+    } catch (error) {
+        console.error('Error fetching return details:', error);
+    }
+}
 
-    const existingBookings = JSON.parse(localStorage.getItem("returnDetal")) || [];
-    existingBookings.push(newBooking);
-    localStorage.setItem("returnDetal", JSON.stringify(existingBookings));
+// Add new return detail
+async function AddReturnDetail(formData) {
+    try {
+        const response = await fetch(addReturnDetailUrl, {
+            method: 'POST',
+            body: formData
+        });
+        if (!response.ok) throw new Error("Failed to add return detail.");
+        alert("Return detail added successfully!"); // Success message
+    } catch (error) {
+        console.error('Error adding return detail:', error);
+        alert("Failed to add return detail. Please try again.");
+    }
+    
+}
 
-    populateTable(); // Update table with the new booking
-    populateRentalCarIdOptions(); // Update select options if needed
-});
+// Populate rental car ID options and handle form submission
+async function populateRentalCarIdOptions() {
+    await Promise.all([fetchRentalDetails(), fetchBookingDetails(), fetchReturnDetails()]);
 
-// Populate the table with data from localStorage
-function populateTable() {
-    const rentalCarDetail = JSON.parse(localStorage.getItem("returnDetal")) || [];
+    const rentalIdSelect = document.getElementById("rentalCarId");
+    const rentalStartDateInput = document.getElementById("startDate");
+    const returnDateInput = document.getElementById("returnDate");
+    const conditionDetails = document.getElementById("condition");
+    const extraPaymentInput = document.getElementById("extraPayment");
+
+    rentalIdSelect.innerHTML = '<option value=""></option>'; 
+    rentalDetail.forEach(booking => {
+        const option = document.createElement('option');
+        option.value = booking.rentalId;
+        option.textContent = booking.rentalId;
+        rentalIdSelect.appendChild(option);
+    });
+
+    rentalIdSelect.addEventListener('change', function () {
+        const selectedRentalCarId = this.value;
+        const selectedRentalDetail = rentalDetail.find(r => r.rentalId === selectedRentalCarId);
+        const bookingCarDetails = selectedRentalDetail ? bookingDetail.find(c => c.bookingId === selectedRentalDetail.bookingId) : null;
+
+        rentalStartDateInput.value = selectedRentalDetail ? bookingCarDetails.startDate : '';
+        returnDateInput.value = selectedRentalDetail ? selectedRentalDetail.returnDate : ''; // Set return date here
+    });
+
+    document.getElementById('booking-form').addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const ReturnId = 'Ret_' + String(Math.floor(1000 + Math.random() * 9000)); // Generate unique Return ID
+
+        // Gather form data
+        const formData = new FormData();
+        formData.append("returnId", ReturnId);
+        formData.append("rentalId", rentalIdSelect.value); // Get selected rental ID
+        formData.append("startDate", rentalStartDateInput.value); // Get start date
+        formData.append("returnDate", returnDateInput.value); // Get return date
+        formData.append("extraPayment", extraPaymentInput.value); // Get extra payment
+        formData.append("condition", conditionDetails.value); // Get condition
+
+        // Call the AddReturnDetail function with the form data
+        await AddReturnDetail(formData);
+
+        // Refresh the table with updated return details and close the modal
+        await fetchReturnDetails();
+        populateTable(returnDetail);
+        closeModal();
+    });
+
+    populateTable(returnDetail);
+}
+
+// Populate table with return details
+function populateTable(details) {
     const tableBody = document.querySelector('.car-table tbody');
     tableBody.innerHTML = ''; // Clear existing rows
-
-    rentalCarDetail.forEach(booking => {
+    details.forEach(returnDetail => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${booking.rentalCarId}</td>
-            <td>${booking.startDate}</td>
-            <td>${booking.returnDate}</td>
-            <td>${booking.extraPayment}</td>
+            <td>${returnDetail.returnId}</td>
+            <td>${returnDetail.rentalId}</td>
+            <td>${returnDetail.returnDate}</td>
+            <td>${returnDetail.lateFees || 'N/A'}</td>
+            <td>${returnDetail.condition}</td>
         `;
         tableBody.appendChild(row);
     });
@@ -72,22 +128,21 @@ const modal = document.getElementById("myModal");
 const btn = document.getElementById("openModalBtn");
 const span = document.getElementById("closeModalBtn");
 
-btn.onclick = function() {
+btn.onclick = function () {
     modal.style.display = "block";
-}
+};
 
-span.onclick = function() {
+span.onclick = closeModal;
+
+window.onclick = function (event) {
+    if (event.target === modal) {
+        closeModal();
+    }
+};
+
+function closeModal() {
     modal.style.display = "none";
 }
 
-window.onclick = function(event) {
-    if (event.target === modal) {
-        modal.style.display = "none";
-    }
-}
-
-// Populate table and select options on page load
-document.addEventListener("DOMContentLoaded", function() {
-    populateTable();
-    populateRentalCarIdOptions();
-});
+// Populate options and table on page load
+document.addEventListener("DOMContentLoaded", populateRentalCarIdOptions);

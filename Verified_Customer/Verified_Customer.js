@@ -1,16 +1,13 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
     const logoutButton = document.getElementById('logoutButton');
 
-    // Logout function to clear loggedUser from localStorage and redirect to login page
     logoutButton.addEventListener('click', function (event) {
-        event.preventDefault(); // Prevent default link behavior
-
-        // Remove loggedUser from localStorage
+        event.preventDefault();
         localStorage.removeItem('loggedUser');
-
-        // Redirect to login page after logging out
         window.location.href = '../Customer_login/login.html';
     });
+
+    await Promise.all([GetAllCarsData(), GetAllCustomerData(), GetAllBookingData()]); // Fetch all necessary data
 });
 
 function getQueryParam(param) {
@@ -18,26 +15,73 @@ function getQueryParam(param) {
     return urlParams.get(param);
 }
 
-// Get car ID and customer ID from URL parameters
 const rentalCarId = getQueryParam('carid');
-const renterId = getQueryParam('customerid');
+const renterCusId = getQueryParam('customerid');
+const bookingId = getQueryParam('bookingId');
 
-// Fetch the car details from local storage
-let carDetailsArray = JSON.parse(localStorage.getItem('bookingCar')) || [];
-const selectedCar = carDetailsArray.find(car => car.carId == rentalCarId);
 
-// Fetch the customer details from local storage
-let customerDetailsArray = JSON.parse(localStorage.getItem('userProfileData')) || [];
-const selectedCustomer = customerDetailsArray.find(customer => customer.customerId == renterId);
 
-// If both car and customer details are found, display them; otherwise, show an error
-if (selectedCar && selectedCustomer) {
-    displayBookingDetails(selectedCar, selectedCustomer);
-} else {
-    displayError();
+const getAllBookingDetails = 'http://localhost:5255/api/Booking';
+const getAllCarDetails = 'http://localhost:5255/api/Manager/get-all-cars';
+const getAllCustomerDetails = 'http://localhost:5255/api/Customer/Get-All-Customer';
+
+let cars = [];
+let customers = [];
+let Booking = [];
+
+// Fetch all car details
+async function GetAllCarsData() {
+    try {
+        const response = await fetch(getAllCarDetails);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        cars = data;
+
+        if (rentalCarId) {
+            const rentalCar = cars.find(car => car.carId === rentalCarId);
+            const selectedCustomer = customers.find(customer => customer.id === renterCusId);
+            if (rentalCar && selectedCustomer) {
+                displayBookingDetails(rentalCar, selectedCustomer);
+            } else {
+                displayError();
+            }
+        } else {
+            displayError();
+        }
+    } catch (error) {
+        console.error('Error fetching car data:', error);
+    }
 }
 
-// Function to display the booking details
+// Fetch all customer details
+async function GetAllCustomerData() {
+    try {
+        const response = await fetch(getAllCustomerDetails);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        customers = data; // Store all customers
+    } catch (error) {
+        console.error('Error fetching customer data:', error);
+    }
+}
+
+async function GetAllBookingData() {
+    try {
+        const response = await fetch(getAllBookingDetails);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        Booking = data; // Store booking data if needed
+    } catch (error) {
+        console.error('Error fetching booking data:', error);
+    }
+}
+
 function displayBookingDetails(car, customer) {
     const bookingSummarySection = document.querySelector('.booking-summary');
 
@@ -46,38 +90,34 @@ function displayBookingDetails(car, customer) {
             <h2>Car Details</h2>
             <p><strong>Brand:</strong> ${car.brand}</p>
             <p><strong>Model:</strong> ${car.model}</p>
-            <p><strong>Fuel:</strong> ${car.fuel}</p>
+            <p><strong>Fuel:</strong> ${car.fuelType}</p>
             <p><strong>Transmission:</strong> ${car.transmission}</p>
-            <p><strong>Seats:</strong> ${car.seats}</p>
-            <p><strong>Total Hours:</strong> ${car.totalHours}</p>
-            <p><strong>Total Price:</strong> Rs.${car.totalPrice}</p>
-            <img src="${car.image}" alt="${car.brand} ${car.model}" style="max-width:300px;">
-            
+            <p><strong>Seats:</strong> ${car.numberOfSeats}</p>
+            <p><strong>Price Per Hour:</strong> ${car.pricePerHour}</p>
+            <img src="http://localhost:5255${car.imagePath}" alt="${car.model}" style="width: 100px; height: auto;" />
             <h2>Renter Details</h2>
-            <p><strong>Renter ID:</strong> ${customer.customerId}</p>
-            <p><strong>Name:</strong> ${customer.customerName}</p>
-            <p><strong>Email:</strong> <a href="mailto:${customer.customerEmail}">${customer.customerEmail}</a></p>
-            <p><strong>Phone:</strong> <a href="tel:${customer.customerPhone}">${customer.customerPhone}</a></p>
-            
+            <p><strong>Name:</strong> ${customer.name}</p>
+            <p><strong>Email:</strong> <a href="mailto:${customer.email}">${customer.email}</a></p>
+            <p><strong>Phone:</strong> <a href="tel:${customer.phone}">${customer.phone}</a></p>
             <button id="registerButton">Booking Payment</button>
         </div>
     `;
 
     bookingSummarySection.innerHTML = bookingDetailsHTML;
 
-    // Event listener for the advanced payment button
     const registerButton = document.getElementById('registerButton');
     registerButton.addEventListener('click', function () {
-        window.location.href = `../Customer_payment/Cus_payment.html?carid=${rentalCarId}&customerid=${renterId}`; // Redirect to the payment page
+        window.location.href = `../Customer_payment/Cus_payment.html?carid=${rentalCarId}&customerid=${renterCusId}&bookingId=${bookingId}`; 
     });
+   
 }
 
-// Function to display an error message if details are not found
 function displayError() {
     const bookingSummarySection = document.querySelector('.booking-summary');
     bookingSummarySection.innerHTML = `
         <div class="error-message">
-            <p>Sorry, the car or renter details could not be found. Please try again later or contact support.</p>
+            <p>Choose our rental car hire service for affordable rates, a diverse fleet, and exceptional customer support. Your journey begins here!</p>
+            <button><a href="../Car_Categories/get-car.html">Book a Car Now</a></button>
         </div>
     `;
-}
+} ;

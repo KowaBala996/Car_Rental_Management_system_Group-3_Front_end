@@ -3,24 +3,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeButton = document.querySelector('.modal .close');
     const userTableBody = document.getElementById('user-requests');
     const messageArea = document.getElementById('message-area');
+    let userRequests = []; // Define userRequests globally
 
-    // Retrieve user data from local storage and ensure id key is set
-    function updateUserKeys() {
-        const userRequests = JSON.parse(localStorage.getItem('userProfileData')) || [];
-        const updatedUserRequests = userRequests.map(user => {
-            const updatedUser = { ...user };
-            if (!updatedUser.id) { // Ensure every user has an id
-                updatedUser.id = String(updatedUser.customerId); // Ensure ID is a string
-            }
-            return updatedUser;
-        });
-        localStorage.setItem('userProfileData', JSON.stringify(updatedUserRequests));
+    // Fetch customer data from API
+    async function getAllCustomerData() {
+        const getAllCustomerDetails = 'http://localhost:5255/api/Customer/Get-All-Customer';
+        try {
+            const response = await fetch(getAllCustomerDetails);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            userRequests = data; // Assign data to the global variable
+            populateUserTable(); // Populate table after fetching data
+        } catch (error) {
+            console.error('Error fetching customer data:', error);
+            messageArea.textContent = 'Error fetching customer data. Please try again later.';
+            messageArea.style.color = 'red';
+        }
     }
-
-    updateUserKeys(); // Update keys on page load
-
-    // Fetch user data from local storage
-    const userRequests = JSON.parse(localStorage.getItem('userProfileData')) || [];
 
     // Populate the user table with data
     function populateUserTable() {
@@ -28,11 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
         userRequests.forEach(user => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${user.customerId}</td>
-                <td>${user.customerName}</td>
-                <td>${user.customerPhone}</td>
-                <td>${user.licenseNumber}</td>
-                <td>${user.profileStatus}</td>
+                <td>${user.id}</td>
+                <td>${user.name}</td>
+                <td>${user.phone}</td>
+                <td>${user.drivingLicenseNumber|| 'Pending'}</td>
+                <td>${user.profileStatus || ' Not Verify'}</td>
+                  <td><img src="../asset/download.jpg" alt="Car Image 2" style="width: 100px; height: auto;"></td> 
                 <td>
                     <button class="view-btn" data-user-id="${user.id}">View</button>
                     <button class="verify-btn" data-user-id="${user.id}">Verify</button>
@@ -51,17 +51,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        document.getElementById('name').textContent = user.customerName;
-        document.getElementById('email').textContent = user.customerEmail;
-        document.getElementById('phone').textContent = user.customerPhone;
-        document.getElementById('customerNicnumber').textContent = user.customerNicnumber;
-        document.getElementById('address').textContent = user.customerAddress;
-        document.getElementById('license-number').textContent = user.licenseNumber;
+        document.getElementById('name').textContent = user.name;
+        document.getElementById('email').textContent = user.email;
+        document.getElementById('phone').textContent = user.phone;
+        document.getElementById('customerNicnumber').textContent = user.nic;
+        document.getElementById('address').textContent = user.address;
+        document.getElementById('license-number').textContent = user.drivingLicenseNumber;
         document.getElementById('proof-type').textContent = user.proofType;
-        document.getElementById('proof-number').textContent = user.SelectedIDProofNumber;
+        document.getElementById('proof-number').textContent = user.proofIdNumber;
         document.getElementById('postal-code').textContent = user.postalCode;
-        document.getElementById('license-front').src = user.licenseFrontImage;
-        document.getElementById('license-back').src = user.licenseBackImage;
 
         modal.style.display = 'block';
     }
@@ -72,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Update user status
-    function updateUserStatus(userId, status) {
+    async function updateUserStatus(userId, status) {
         const userIndex = userRequests.findIndex(u => String(u.id) === userId); // Compare as strings
         if (userIndex === -1) {
             console.error(`User with ID ${userId} not found.`);
@@ -80,15 +78,43 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         userRequests[userIndex].profileStatus = status;
-        localStorage.setItem('userProfileData', JSON.stringify(userRequests));
 
-        messageArea.textContent = `User ${userRequests[userIndex].customerName} has been ${status.toLowerCase()}.`;
-        messageArea.style.color = status === 'Verified' ? 'green' : 'red';
+        // Prepare data for update
+        const selectedCustomer = userRequests[userIndex];
+        const formData = new FormData();
+        formData.append("id", selectedCustomer.id);
+        formData.append("address", selectedCustomer.address);
+        formData.append("postalCode", selectedCustomer.postalCode);
+        formData.append("drivingLicenseNumber", selectedCustomer.drivingLicenseNumber);
+        formData.append("proofIdNumber", selectedCustomer.proofIdNumber);
+        formData.append("profileStatus", status); 
+        formData.append("frontImagePath", selectedCustomer.frontImagePath);
+        
 
-        populateUserTable(); // Refresh the table with updated data
+        try {
+            await updateCustomerData(formData);
+            messageArea.textContent = `User ${selectedCustomer.name} has been ${status.toLowerCase()}.`;
+            messageArea.style.color = status === 'Verified' ? 'green' : 'red';
+            populateUserTable(); // Refresh the table with updated data
+            closeModal(); // Close the modal after update
+        } catch (error) {
+            console.error('Error updating customer data:', error);
+            messageArea.textContent = 'Error updating customer data. Please try again.';
+            messageArea.style.color = 'red';
+        }
     }
 
-    // Handle button clicks within the user table
+    async function updateCustomerData(formData) {
+        const updateCusDetails = 'http://localhost:5255/api/Customer/Update-Customer';
+        const response = await fetch(updateCusDetails, {
+            method: 'PUT',
+            body: formData
+        });
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        console.log('Customer updated successfully:', data);
+    }
+
     userTableBody.addEventListener('click', (e) => {
         const userId = e.target.getAttribute('data-user-id');
         if (!userId) {
@@ -96,16 +122,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        console.log(`Button clicked for user ID: ${userId}`);
-
         if (e.target.classList.contains('view-btn')) {
-            console.log(`Opening modal for user ID: ${userId}`);
             openModal(userId);
         } else if (e.target.classList.contains('verify-btn')) {
-            console.log(`Verifying user with ID: ${userId}`);
             updateUserStatus(userId, 'Verified');
         } else if (e.target.classList.contains('reject-btn')) {
-            console.log(`Rejecting user with ID: ${userId}`);
             updateUserStatus(userId, 'Rejected');
         }
     });
@@ -114,8 +135,8 @@ document.addEventListener('DOMContentLoaded', () => {
     closeButton.addEventListener('click', closeModal);
     window.addEventListener('click', (e) => {
         if (e.target === modal) closeModal();
-    });
+    }); 
 
-    // Initialize the table with user data
-    populateUserTable();
+    // Fetch and initialize the table with customer data
+    getAllCustomerData();
 });

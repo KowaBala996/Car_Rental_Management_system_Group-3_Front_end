@@ -1,208 +1,173 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const carTableBody = document.querySelector(".car-table tbody");
-    const carForm = document.getElementById("carForm");
-    const modal = document.getElementById("modal");
-    const closeBtn = document.querySelector(".closeBtn");
-    const addCarBtn = document.querySelector(".add-car");
-    const searchInput = document.getElementById("searchInput");
+const carTableBody = document.querySelector(".car-table tbody");
+const carForm = document.getElementById("carForm");
+const modal = document.getElementById("modal");
+const closeBtn = document.querySelector(".closeBtn");
+const addCarBtn = document.querySelector(".add-car");
+const searchInput = document.getElementById("searchInput");
 
-    let cars = [];
-    let editingIndex = -1;
+let cars = [];
+let editingIndex = -1;
+let lastCarId = "C000";
 
-    // Function to fetch initial cars from the API
-    async function fetchCars() {
-        try {
-            const response = await fetch('https://yourapi.com/cars'); // Replace with your API endpoint
-            if (!response.ok) throw new Error('Network response was not ok');
-            cars = await response.json();
+const getAllCarDetails = 'http://localhost:5255/api/Manager/get-all-cars';
+const addCarApiURL = 'http://localhost:5255/api/Manager/add-car';
+const deletCarApiURL = 'http://localhost:5255/api/Manager/delete-car/';
+const updateApiURL = 'http://localhost:5255/api/Manager/update-car';
+
+// Fetch and render all cars on page load
+async function GetAllCarsData() {
+    await fetch(getAllCarDetails).then(response => response.json())
+        .then(data => {
+            cars = data;
             renderCars();
-        } catch (error) {
-            console.error('Failed to fetch cars:', error);
-        }
-    }
+            GetLastCarId();
+        })
+        .catch(error => console.error('Error fetching cars:', error));
+}
 
-    // Function to render cars
-    function renderCars() {
-        carTableBody.innerHTML = "";
-        const searchTerm = searchInput.value.toLowerCase();
-        const filteredCars = cars.filter(car => 
-            car.brand.toLowerCase().includes(searchTerm) ||
-            car.bodyType.toLowerCase().includes(searchTerm) ||
-            car.model.toLowerCase().includes(searchTerm)
-        );
+GetAllCarsData();
 
-        filteredCars.forEach((car, index) => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td>${car.id}</td>
-                <td>${car.brand}</td>
-                <td>${car.bodyType}</td>
-                <td>${car.model}</td>
-                <td>${car.transmission}</td>
-                <td>${car.fuel}</td>
-                <td>${car.seats}</td>
-                <td>Rs ${car.price}</td>
-                <td><img src="${car.image}" alt="${car.model}" style="width: 100px; height: auto;" /></td>
-                <td>${car.availableFrom}</td>
-                <td>${car.availableTo}</td>
-                <td>
-                    <button class="edit-btn" data-index="${index}">Edit</button>
-                    <button class="delete-btn" data-index="${index}">Delete</button>
-                </td>
-            `;
-            carTableBody.appendChild(row);
-        });
-    }
+// Render cars in the table
+function renderCars() {
+    carTableBody.innerHTML = "";
+    const searchTerm = searchInput.value.toLowerCase();
+    const filteredCars = cars.filter(car =>
+        car.brand.toLowerCase().includes(searchTerm) ||
+        car.bodyType.toLowerCase().includes(searchTerm) ||
+        car.model.toLowerCase().includes(searchTerm)
+    );
 
-    // Event listener for search input
-    searchInput.addEventListener("input", renderCars);
-
-    // Function to add a new car
-    async function addCar(carData) {
-        try {
-            const response = await fetch('https://localhost:7175/api/Manager/add-car', { // Replace with your API endpoint
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(carData)
-            });
-            if (!response.ok) throw new Error('Failed to add car');
-            const newCar = await response.json();
-            cars.push(newCar);
-            renderCars();
-        } catch (error) {
-            console.error('Error adding car:', error);
-        }
-    }
-
-    // Event listener for car form submission
-    carForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        
-        const formData = new FormData(carForm); // Create FormData object to handle file input
-        const carData = {
-            id: carForm.id.value,
-            brand: carForm.brand.value,
-            bodyType: carForm.bodyType.value,
-            model: carForm.model.value,
-            transmission: carForm.transmission.value,
-            fuel: carForm.fuel.value,
-            seats: parseInt(carForm.seats.value),
-            price: parseFloat(carForm.price.value),
-            availableFrom: carForm.availableFrom.value,
-            availableTo: carForm.availableTo.value
-        };
-
-        // Handle image upload
-        const imageFile = formData.get("image");
-        if (imageFile) {
-            const reader = new FileReader();
-            reader.onloadend = async () => {
-                carData.image = reader.result; // Set the image data to base64 format
-                if (editingIndex === -1) {
-                    await addCar(carData); // Add new car
-                } else {
-                    await updateCar(editingIndex, carData); // Update existing car
-                }
-                carForm.reset(); // Clear the form
-                modal.style.display = "none"; // Close the modal
-            };
-            reader.readAsDataURL(imageFile); // Read the file as a data URL
-        }
-    });
-
-    // Function to update a car
-    async function updateCar(index, carData) {
-        try {
-            const response = await fetch(`https://localhost:7175/api/Manager/update-car`, { // Replace with your API endpoint
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(carData)
-            });
-            if (!response.ok) throw new Error('Failed to update car');
-            cars[index] = { ...cars[index], ...carData };
-            renderCars();
-        } catch (error) {
-            console.error('Error updating car:', error);
-        }
-    }
-
-    // Function to delete a car
-    async function deleteCar(index) {
-        try {
-            const response = await fetch(`https://yourapi.com/cars/${cars[index].id}`, { // Replace with your API endpoint
-                method: 'DELETE'
-            });
-            if (!response.ok) throw new Error('Failed to delete car');
-            cars.splice(index, 1);
-            renderCars();
-        } catch (error) {
-            console.error('Error deleting car:', error);
-        }
-    }
-
-    // Event delegation for edit and delete buttons
-    carTableBody.addEventListener("click", (e) => {
-        const index = e.target.dataset.index;
-        if (e.target.classList.contains("edit-btn")) {
-            editingIndex = index;
-            loadCarToForm(cars[index]);
-            modal.style.display = "block"; // Show modal for editing
-        } else if (e.target.classList.contains("delete-btn")) {
-            if (confirm("Are you sure you want to delete this car?")) {
-                deleteCar(index);
-            }
-        }
-    });
-
-    // Load car data into the form for editing
-    function loadCarToForm(car) {
-        carForm.brand.value = car.brand;
-        carForm.bodyType.value = car.bodyType;
-        carForm.model.value = car.model;
-        carForm.transmission.value = car.transmission;
-        carForm.fuel.value = car.fuel;
-        carForm.seats.value = car.seats;
-        carForm.price.value = car.price;
-        carForm.image.value = ""; // Clear file input
-        carForm.availableFrom.value = car.availableFrom;
-        carForm.availableTo.value = car.availableTo;
-    }
-
-    // Show modal when adding a new car
-    addCarBtn.addEventListener("click", () => {
-        modal.style.display = "block"; // Show modal for adding new car
-        editingIndex = -1; // Reset editing index
-        carForm.reset(); // Clear the form
-    });
-
-    // Close modal
-    closeBtn.addEventListener("click", () => {
-        modal.style.display = "none"; // Hide the modal
-    });
-
-    // Fetch cars on page load
-    fetchCars();
-    loadProfilePicture();
-});
-
-// Function to load the profile picture
-async function loadProfilePicture() {
-    const nic = 'your-nic-here'; // Replace with the actual NIC you want to load
-    try {
-        const response = await fetch(`https://yourapi.com/profile/${nic}`); // Replace with your API endpoint
-        if (!response.ok) throw new Error('Network response was not ok');
-        const profileData = await response.json();
-        
-        const profilePicContainer = document.getElementById('profilepic-container');
-        profilePicContainer.innerHTML = `
-            <h2>Profile Picture:</h2>
-            <img src="${profileData.imagePath}" alt="Profile Picture" style="width: 150px; height: auto;" />
+    filteredCars.forEach(car => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${car.carId}</td>
+            <td>${car.brand}</td>
+            <td>${car.bodyType}</td>
+            <td>${car.model}</td>
+            <td>${car.transmission}</td>
+            <td>${car.fuelType}</td>
+            <td>${car.numberOfSeats}</td>
+            <td>Rs ${car.pricePerHour}</td>
+            <td><img src="http://localhost:5255${car.imagePath}" alt="${car.model}" style="width: 100px; height: auto;" /></td>
+            <td>${car.availableFrom}</td>
+            <td>${car.availableTo}</td>
+            <td>
+                <button class="edit-btn" onclick="updateCar('${car.carId}')">Edit</button>
+                <button class="delete-btn" onclick="DeleteCar('${car.carId}')">Delete</button>
+            </td>
         `;
-    } catch (error) {
-        console.error('Failed to load profile picture:', error);
+        carTableBody.appendChild(row);
+    });
+}
+
+// Add new car to the database
+async function AddCar(formData) {
+    await fetch(addCarApiURL, {
+        method: 'POST',
+        body: formData
+    });
+    GetAllCarsData();
+}
+
+// Delete car from the database
+async function DeleteCarFromDatabase(id) {
+    await fetch(deletCarApiURL + id, {
+        method: 'DELETE'
+    });
+    GetAllCarsData();
+}
+
+// Update existing car in the database
+async function UpdateCar(formData) {
+    await fetch(updateApiURL, {
+        method: 'PUT',
+        body: formData
+    });
+    GetAllCarsData();
+}
+
+// Delete car handler
+function DeleteCar(id) {
+    DeleteCarFromDatabase(id);
+}
+
+// Open modal and load car details for editing
+function updateCar(id) {
+    const editCar = cars.find(c => c.carId === id);
+    if (editCar) {
+        editingIndex = cars.indexOf(editCar);
+        modal.style.display = "block";
+        carForm.brand.value = editCar.brand;
+        carForm.bodyType.value = editCar.bodyType;
+        carForm.model.value = editCar.model;
+        carForm.transmission.value = editCar.transmission;
+        carForm.fuelType.value = editCar.fuelType;
+        carForm.seats.value = parseInt(editCar.numberOfSeats);
+        carForm.price.value = editCar.pricePerHour;
+        carForm.availableFrom.value = editCar.availableFrom;
+        carForm.availableTo.value = editCar.availableTo;
     }
 }
+
+// Handle form submission for adding/updating car
+carForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const carId = generateCarID(lastCarId);
+    const imagePath = document.getElementById('image').files[0];
+
+    const formData = new FormData();
+    formData.append("carId", carId);
+    formData.append("brand", carForm.brand.value);
+    formData.append("bodyType", carForm.bodyType.value);
+    formData.append("model", carForm.model.value);
+    formData.append("transmission", carForm.transmission.value);
+    formData.append("fuelType", carForm.fuelType.value);
+    formData.append("numberOfSeats", parseInt(carForm.seats.value));
+    formData.append("pricePerHour", parseFloat(carForm.price.value));
+    formData.append("imagePath", imagePath);
+    formData.append("availableFrom", carForm.availableFrom.value);
+    formData.append("availableTo", carForm.availableTo.value);
+
+    if (editingIndex === -1) {
+        await AddCar(formData); // Add new car
+    } else {
+        await UpdateCar(formData); // Update existing car
+        editingIndex = -1;
+    }
+    carForm.reset();
+    modal.style.display = "none";
+});
+
+// Search filter
+searchInput.addEventListener("input", renderCars);
+
+// Generate a new Car ID based on the last ID
+function generateCarID(lastID) {
+    let numericPart = parseInt(lastID.slice(1));
+    numericPart++;
+    let newID = "C" + numericPart.toString().padStart(3, "0");
+    return newID;
+}
+
+// Get the last car ID from the cars array
+function GetLastCarId() {
+    if (cars.length != 0) {
+        lastCarId = cars[cars.length - 1].carId;
+    } else {
+        lastCarId = "C000";
+    }
+}
+
+// Show modal for adding a new car
+addCarBtn.addEventListener("click", () => {
+    modal.style.display = "block";
+    editingIndex = -1;
+    carForm.reset();
+});
+
+// Close modal
+closeBtn.addEventListener("click", () => {
+    modal.style.display = "none";
+});
+

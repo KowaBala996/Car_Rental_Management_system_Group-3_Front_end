@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -159,6 +158,27 @@ footer {
     margin-left: 270px; /* Left margin for content */
     padding: 20px; /* Padding for content */
 }
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+}
+
 
     </style>
 </head>
@@ -195,13 +215,18 @@ footer {
             <thead>
                 <tr>
                     <th>Booking ID</th> <!-- Added Booking ID -->
-                    <th>Booking Date</th> <!-- Added Booking Date -->
-                    <th>Customer Id</th>
+                    <th>Payment ID</th> <!-- Added Booking ID -->
+                    <th>Payment Method</th>
+                    <th>Receipt Number</th>
+                    <th>Payment Status</th>
+                    <th>Payment Date</th>
+                    <th>Booking-Request Date</th>
+                    <th>Customer ID</th> <!-- Added Booking ID -->
                     <th>Rental CarId</th>
-                    <th>Advance Payment</th>
+                    <th>Booking Payment</th>
                     <th>Booking Date From</th>
                     <th>Booking Date To</th>
-                    <th>Status</th>
+                    <th>Booking Status</th>
                     <th>Actions</th>
                     <th>Rental</th>
 
@@ -213,7 +238,7 @@ footer {
         </table>
     </div>
 
-    <div id="rentalModal" class="modal"> 
+    <div id="rentalModal" class="modal">
         <div class="modal-content">
             <span class="close-rental-modal">&times;</span>
             <h2>Rental Confirmation</h2>
@@ -222,11 +247,12 @@ footer {
             <p>Car Model: <span id="modalCarModel"></span></p>
             <label for="rentalStartDate">Rental Start Date:</label>
             <input type="date" id="rentalStartDate">
-            <label for="halfPayment">Half Payment:</label>
+            <label for="halfPayment">Full Payment:</label>
             <input type="number" id="halfPayment" step="100">
             <button id="confirmRental">Confirm Rental</button>
         </div>
     </div>
+    
    
 
     <footer>

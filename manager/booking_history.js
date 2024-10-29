@@ -1,25 +1,90 @@
 document.addEventListener("DOMContentLoaded", () => {
     const bookingHistoryTable = document.getElementById("booking-history");
 
-    // Function to load booking history from local storage
-    function loadBookingHistory() {
-        // Retrieve rental car details from local storage
-        const rentalCarDetails = JSON.parse(localStorage.getItem("rentalCarDetail")) || [];
+    async function loadBookingHistory() {
+        let RentalDetails = [];
+        let AllBookingPayment = [];
+        let getAllBookingCar = [];
+        let customers = [];
+    
+      
 
-        // Check if rentalCarDetails is an array and has at least one booking
-        if (Array.isArray(rentalCarDetails) && rentalCarDetails.length > 0) {
-            rentalCarDetails.forEach(rentalCarDetail => {
+        const getAllRentalDetails = 'http://localhost:5255/api/RentalDetail';
+        const getAllBookingPayment = 'http://localhost:5255/api/BookingPayment';
+        const getAllBookingCarDetails = 'http://localhost:5255/api/Booking';
+        const getAllCustomerDetails = 'http://localhost:5255/api/Customer/Get-All-Customer';
+
+
+        // Fetch rental details
+        async function GetAllRentalData() {
+            try {
+                const response = await fetch(getAllRentalDetails);
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                RentalDetails = await response.json();
+            } catch (error) {
+                console.error('Error fetching rental data:', error);
+            }
+        }
+
+        // Fetch booking payment details
+        async function GetAllBookingPayment() {
+            try {
+                const response = await fetch(getAllBookingPayment);
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                AllBookingPayment = await response.json();
+            } catch (error) {
+                console.error('Error fetching booking payment data:', error);
+            }
+        }
+
+        // Fetch booking car details
+        async function GetAllBookingCarDetails() {
+            try {
+                const response = await fetch(getAllBookingCarDetails);
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                getAllBookingCar = await response.json();
+            } catch (error) {
+                console.error('Error fetching booking car data:', error);
+            }
+        }
+        async function GetAllCustomerData() {
+            try {
+                const response = await fetch(getAllCustomerDetails);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                const data = await response.json();
+                customers = data; 
+            } catch (error) {
+                console.error('Error fetching customer data:', error);
+            }
+           
+    
+        }
+
+        // Execute fetch functions in sequence
+        await GetAllRentalData();
+        await GetAllBookingPayment();
+        await GetAllBookingCarDetails();
+        await GetAllCustomerData();
+
+        // Populate the booking history table
+        if (Array.isArray(RentalDetails) && RentalDetails.length > 0) {
+            RentalDetails.forEach(rentalCarDetail => {
+                const BookingCar = getAllBookingCar.find(b => b.bookingId === rentalCarDetail.bookingId) ||[];
+                const customer = customers.find(c => c.id ===BookingCar.customerId) || [];
+
                 const row = document.createElement("tr");
                 row.innerHTML = `
                     <td>${rentalCarDetail.bookingId || 'N/A'}</td>
-                    <td>${rentalCarDetail.customerId || 'N/A'}</td>
-                    <td>${rentalCarDetail.rentalCarId || 'N/A'}</td>
-                    <td>${new Date().toLocaleDateString() || 'N/A'}</td>
-                    <td>${rentalCarDetail.availableFrom || 'N/A'}</td>
-                    <td>${rentalCarDetail.availableTo || 'N/A'}</td>
-                    <td>${rentalCarDetail.halfPayment || '0'}</td>
-                    <td>${rentalCarDetail.paymentStatus || 'Pending'}</td>
-                    <td>${(rentalCarDetail.paymentStatus === "Approved") ? "Confirmed" : "Pending"}</td>
+                    <td>${rentalCarDetail.rentalId || 'N/A'}</td>
+                    <td>${customer.id || 'N/A'}</td>
+                    <td>${rentalCarDetail.rentalDate || 'N/A'}</td>
+                    <td>${BookingCar.startDate || 'N/A'}</td>
+                    <td>${BookingCar.endDate || 'N/A'}</td>
+                    <td>${rentalCarDetail.fullPayment || '0'}</td>
+                    <td>${rentalCarDetail.status || 'Pending'}</td>
+                    <td>${(rentalCarDetail.status === "Approved") ? "Confirmed" : "Pending"}</td>
                 `;
                 bookingHistoryTable.appendChild(row);
             });

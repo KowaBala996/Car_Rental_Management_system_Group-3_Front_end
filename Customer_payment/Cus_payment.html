@@ -66,11 +66,19 @@
                         <input type="number" id="payment-amount" name="payment-amount" step="1000"
                             placeholder="Advance payment is Rs.1000 only" required>
 
+                        <label for="payment-status">Payment Status</label>
+                        <select id="payment-status" name="payment-status" required>
+                            <option value="" disabled selected>Select Status</option>
+                            <option value="Success">Success</option>
+                            <option value="Cancel">Cancel</option>
+                        </select>
+
+
                         <label for="payment-method">Payment Method</label>
                         <input type="text" id="payment-method" name="payment-method" required>
                         <button type="submit">Request</button>
 
-                      
+
 
                     </fieldset>
 
@@ -115,91 +123,118 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-
-
             const logoutButton = document.getElementById('logoutButton');
 
-            // Logout function to clear loggedUser from localStorage and redirect to login page
             logoutButton.addEventListener('click', function (event) {
-                event.preventDefault(); // Prevent default link behavior
-
-                // Remove loggedUser from localStorage
+                event.preventDefault();
                 localStorage.removeItem('loggedUser');
-
-                // Redirect to login page after logging out
                 window.location.href = '../Customer_login/login.html';
             });
 
-
-
-            // Function to get query parameters from the URL
             function getQueryParam(param) {
                 const urlParams = new URLSearchParams(window.location.search);
                 return urlParams.get(param);
             }
 
             const carid = getQueryParam('carid');
-            const customerid = getQueryParam('customerid');
+            const custid = getQueryParam('customerid');
+            const bookId = getQueryParam('bookingId');
 
-            // Function to display car details by car ID
-            function displayCarDetailsById(carId) {
-                const carDetails = JSON.parse(localStorage.getItem('bookingCar')) || [];
+            let Booking = [];
+            const getBookingIdUrl = 'http://localhost:5255/api/Booking/' + bookId;
 
-                const carDetail = carDetails.find(car => car.carId === carid);
+            async function displayCarDetailsById() {
+                await GetBookingId();
 
-                if (carDetail) {
+                const bookingDetails = Booking.find(b => b.customerId === custid);
+                if (bookingDetails) {
                     const carDetailsHTML = `
-                        <p><strong>Price per Hour:</strong> Rs.${carDetail.hourlyRate}</p>
-                        <p><strong>Total Hours:</strong> ${carDetail.totalHours}</p>
-                        <p><strong>Total Price:</strong> Rs.${carDetail.totalPrice}</p>
-                    `;
+                <p><strong>Total Price:</strong> Rs.${bookingDetails.totalPrice}</p>
+            `;
                     document.getElementById('car-details-container').innerHTML = carDetailsHTML;
                 } else {
                     document.getElementById('car-details-container').innerHTML = '<p>No car details available for this ID.</p>';
                 }
             }
 
-            displayCarDetailsById(carid);
+            async function GetBookingId() {
+                try {
+                    const response = await fetch(getBookingIdUrl);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    Booking = data;
+                } catch (error) {
+                    console.error('Error fetching booking data:', error);
+                }
+            }
 
-            // Event listener for the payment form submission
-            document.getElementById('payment-form').addEventListener('submit', function (event) {
-                event.preventDefault(); // Prevent form from submitting normally
+            displayCarDetailsById();
+
+            document.getElementById('payment-form').addEventListener('submit', async function (event) {
+                event.preventDefault();
 
                 const payment_ReciptNumber = document.getElementById('payment-ReciptNumber').value;
                 const paymentDate = document.getElementById('payment-date').value;
                 const bookingAmount = document.getElementById('payment-amount').value;
+                const paymentstatus = document.getElementById('payment-status').value;
                 const paymentMethod = document.getElementById('payment-method').value;
 
-                // Generate unique payment ID using current timestamp
                 const paymentId = 'PAY_' + Math.floor(Math.random() * 1000);
+                let paymentdetails = [];
 
+                const AddBookingPaymentUrl = 'http://localhost:5255/api/BookingPayment';
+                const GetBookingPaymentUrl = 'http://localhost:5255/api/BookingPayment';
 
-                const payment = {
-                    paymentId: paymentId,
-                    payment_ReciptNumber: payment_ReciptNumber,
-                    paymentDate: paymentDate,
-                    bookingAmount: parseFloat(bookingAmount),
-                    paymentMethod: paymentMethod,
-                    rentalCarId: carid || '',
-                    customerId: customerid,
-                };
+                async function AddBookingPayment(addBookingPay) {
+                    try {
+                        await fetch(AddBookingPaymentUrl, {
+                            method: 'POST',
+                            body: addBookingPay,
+                        });
+                        alert('Request sent successfully!');
+                    } catch (error) {
+                        console.error('Error adding booking:', error);
+                    }
+                }
 
-                // Fetch existing payments or initialize an empty array
-                let payments = JSON.parse(localStorage.getItem('bookingCarPayment')) || [];
+                async function GetBookingPaymentData() {
+                    try {
+                        const response = await fetch(GetBookingPaymentUrl);
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        paymentdetails = await response.json();
+                    } catch (error) {
+                        console.error('Error fetching payment data:', error);
+                    }
+                }
 
-                // Check if payment for the same car and customer already exists
-                let isPayment = payments.find(p => p.rentalCarId === carid && p.customerId === customerid);
+                await GetBookingPaymentData();
+                const isBooking = paymentdetails.find(p => p.bookingId === bookId);
 
-                if (isPayment) {
+                if (isBooking) {
                     alert("You have already requested the same car.");
                 } else {
-                    // Add the new payment
-                    payments.push(payment);
+                    const formData = new FormData();
+                    formData.append("paymentId", paymentId);
+                    formData.append("bookingId", bookId);
+                    formData.append("amount", bookingAmount);
+                    formData.append("paymentMethod", paymentMethod);
+                    formData.append("status", paymentstatus);
+                    formData.append("paymentDate", paymentDate);
+                    formData.append("receiptNumber", payment_ReciptNumber);
+
+                    await AddBookingPayment(formData);
+
+                    // Store payment details locally
+                    const payments = { paymentId, bookingId: bookId, amount: bookingAmount, paymentMethod, status: paymentstatus, paymentDate, receiptNumber: payment_ReciptNumber };
                     localStorage.setItem('bookingCarPayment', JSON.stringify(payments));
-                    alert('Request sent successfully!');
                 }
             });
         });
+
     </script>
     <script src="../Customer_Styles/cus_scrift.js"></script>
 </body>

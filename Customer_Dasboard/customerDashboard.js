@@ -4,92 +4,103 @@ document.addEventListener('DOMContentLoaded', () => {
     const userNameDisplay = document.getElementById('user-name');
     const logoutButton = document.getElementById('logout-button');
 
-    // Fetch user data from local storage
-    const userRequests = JSON.parse(localStorage.getItem('userProfileData')) || [];
-    const loggedUser = JSON.parse(localStorage.getItem('loggedUser')) || {};
-
-    // Display user's name or NIC number
-    const loggedUserData = userRequests.find(user => user.customerNicnumber === loggedUser.customerNicnumber);
-    if (loggedUserData) {
-        userNameDisplay.textContent = `You logged in as ${loggedUserData.customerName}!`;
-    } else {
-        userNameDisplay.textContent = `You logged in with NIC Number ${loggedUser.customerNicnumber}!`;
+    async function GetAllCustomerData() {
+        const getAllCarDetails = 'http://localhost:5255/api/Customer/Get-All-Customer';
+        let cusAll = [];
+        try {
+            const response = await fetch(getAllCarDetails);
+            if (!response.ok) throw new Error('Network response was not ok');
+            cusAll = await response.json();
+        } catch (error) {
+            console.error('Error fetching customer data:', error);
+        }
+        return cusAll;
     }
 
-    // Make the user name visible with fade-in effect
-    userNameDisplay.style.opacity = 1;
+    async function initializeDashboard() {
+        const cusAll = await GetAllCustomerData();
+        const loggedUser = JSON.parse(localStorage.getItem('loggedUser')) || {};
+        const loggedUserData = cusAll.find(user => user.nic === loggedUser.customerNicnumber);
 
-    // Populate user details on the dashboard
-    function populateUserDetails() {
-        userDetailsContainer.innerHTML = ''; // Clear previous content
+        userNameDisplay.textContent = loggedUserData 
+        ? `Hello ${loggedUserData.name}! .`
+    :   `Hello! You've successfully logged in with your NIC Number: ${loggedUserData.customerNicnumber}.`;
+        userNameDisplay.style.opacity = 1;
+
+        populateUserDetails(loggedUserData);
+        await renderBookings(loggedUserData.id);
+    }
+
+    function populateUserDetails(loggedUserData) {
+        userDetailsContainer.innerHTML = ''; 
         if (loggedUserData) {
             const userDiv = document.createElement('div');
             userDiv.classList.add('user-details');
             userDiv.innerHTML = `
-                <h2>${loggedUserData.customerName}</h2>
-                <p><strong>Email:</strong> ${loggedUserData.customerEmail}</p>
-                <p><strong>Phone:</strong> ${loggedUserData.customerPhone}</p>
-                <p><strong>Address:</strong> ${loggedUserData.customerAddress || "N/A"}</p>
-                <p><strong>License Number:</strong> ${loggedUserData.licenseNumber}</p>
-                <p><strong>Proof Type:</strong> ${loggedUserData.proofType}</p>
+                
+                <p><strong>Email:</strong> ${loggedUserData.email}</p>
+                <p><strong>Phone:</strong> ${loggedUserData.phone}</p>
+                <p><strong>Address:</strong> ${loggedUserData.address || "N/A"}</p>
+                <p><strong>License Number:</strong> ${loggedUserData.drivingLicenseNumber}</p>
+                <p><strong>Proof Number:</strong> ${loggedUserData.proofIdNumber}</p>
                 <p><strong>Postal Code:</strong> ${loggedUserData.postalCode}</p>
                 <p><strong>Profile Status:</strong> ${loggedUserData.profileStatus}</p>
-
-                
             `;
             userDetailsContainer.appendChild(userDiv);
         }
     }
 
-    // Fetch booking data from local storage and render it in the table
-    function renderBookings() {
-        const bookings = JSON.parse(localStorage.getItem('rentalCarDetail')) || [];
-        // Clear existing rows
+    async function renderBookings(customerId) {
+        
+        const rentalDetails = await fetchData('http://localhost:5255/api/RentalDetail');
+        const bookingCars = await fetchData('http://localhost:5255/api/Booking');
+
         bookingHistoryContainer.innerHTML = '';
 
-        // Check if there are any bookings
-        if (bookings.length === 0) {
+        const userBookings = bookingCars.filter(b => b.customerId === customerId);
+        if (userBookings.length === 0) {
             const row = document.createElement('tr');
             row.innerHTML = '<td colspan="9" style="text-align:center;">No bookings available.</td>';
             bookingHistoryContainer.appendChild(row);
             return;
         }
 
-        // Loop through bookings and create table rows
-        bookings.forEach(booking => {
+        userBookings.forEach(b => {
+            const rentalDetail = rentalDetails.find(r => r.bookingId === b.bookingId) || {};
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${booking.bookingId || "N/A"}</td>
-                <td>${booking.customerId || "N/A"}</td>
-                <td>${booking.rentalCarId || "N/A"}</td>
-                <td>${booking.bookingAmount || "N/A"}</td>
-                <td>${booking.availableFrom || "N/A"}</td>
-                <td>${booking.availableTo || "N/A"}</td>
-                <td>${booking.rentalDateFrom || "N/A"}</td>
-                <td>${booking.halfPayment || "N/A"}</td>
-                <td>${booking.paymentStatus || "N/A"}</td>
+                <td>${b.bookingId || "N/A"}</td>
+                <td>${b.customerId || "N/A"}</td>
+                <td>${b.carId || "N/A"}</td>
+                <td>${b.totalPrice || "N/A"}</td>
+                <td>${b.startDate || "N/A"}</td>
+                <td>${b.endDate || "N/A"}</td>
+                <td>${rentalDetail.rentalDateFrom || "N/A"}</td>
+                <td>${rentalDetail.halfPayment || "N/A"}</td>
+                <td>${rentalDetail.status || "N/A"}</td>
             `;
             bookingHistoryContainer.appendChild(row);
         });
     }
 
-    // Initialize the dashboard with user data and bookings
-    populateUserDetails();
-    renderBookings();
+    // Fetch data from a given URL
+    async function fetchData(url) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            return await response.json();
+        } catch (error) {
+            console.error(`Error fetching data from ${url}:`, error);
+            return [];
+        }
+    }
 
-    // Logout Functionality
+    initializeDashboard();
+
     logoutButton.addEventListener('click', (event) => {
-        event.preventDefault(); // Prevent default anchor behavior
-
-        // Clear user-related data from local storage
+        event.preventDefault(); 
         localStorage.removeItem('loggedUser');
-        localStorage.removeItem('userProfileData');
-        localStorage.removeItem('rentalCarDetail');
-        // Optionally clear other keys if applicable
-        localStorage.removeItem('lastCarDetail'); 
-        localStorage.removeItem('payments'); 
-
-        // Redirect to the Landing Page
+        
         window.location.href = '../Landing_Page/index.html';
     });
 });

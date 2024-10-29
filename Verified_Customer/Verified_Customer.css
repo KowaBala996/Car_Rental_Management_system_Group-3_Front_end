@@ -67,3 +67,42 @@ main {
 .banner {
     margin: auto;
 }
+.error-message {
+    background-color: #f8d7da; /* Light red background */
+    color: #721c24; /* Dark red text */
+    border: 1px solid #f5c6cb; /* Light red border */
+    padding: 20px; /* Space around the content */
+    border-radius: 5px; /* Rounded corners */
+    margin: 20px 0; /* Space above and below */
+    text-align: center; /* Center the text */
+}
+
+.error-message p {
+    margin: 0 0 10px; /* Space below the paragraph */
+    font-size: 18px; /* Larger font size for the message */
+}
+
+.error-message button {
+    background-color: #dc3545; /* Red background for the button */
+    color: white; /* White text */
+    border: none; /* No border */
+    padding: 10px 20px; /* Space inside the button */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    font-size: 16px; /* Font size for the button text */
+    transition: background-color 0.3s; /* Smooth background color transition */
+}
+
+.error-message button:hover {
+    background-color: #c82333; /* Darker red on hover */
+}
+
+.error-message button a {
+    color: white; /* White text for the link */
+    text-decoration: none; /* No underline */
+}
+
+.error-message button a:hover {
+    text-decoration: underline; /* Underline on hover */
+}
+

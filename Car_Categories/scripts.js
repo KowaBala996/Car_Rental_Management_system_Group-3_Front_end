@@ -1,47 +1,112 @@
 document.addEventListener('DOMContentLoaded', () => {
-    let carDetailsArray = JSON.parse(localStorage.getItem('bookingCar')) || [];
+    const getAllCarDetails = 'http://localhost:5255/api/Manager/get-all-cars';
+    const getAllCustomerDetails = 'http://localhost:5255/api/Customer/Get-All-Customer';
+    const bookingCarApiURL = 'http://localhost:5255/api/Booking';
 
-    const getCarsFromLocalStorage = () => {
-        const storedCars = localStorage.getItem('cars');
-        return storedCars ? JSON.parse(storedCars) : [];
-    };
+    let cars = [];
+    let customers = [];
+    console.log(cars)
+    console.log(customers)
 
-    const saveCarDetailsToLocalStorage = () => {
-        localStorage.setItem('bookingCar', JSON.stringify(carDetailsArray));
-    };
+    // Fetch all car details
+    async function GetAllCarsData() {
+        try {
+            const response = await fetch(getAllCarDetails);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const data = await response.json();
+            cars = data;
+            displayCars(cars);
+        } catch (error) {
+            console.error('Error fetching car data:', error);
+        }
+    }
 
+    // // Fetch all customer details
+    // async function GetAllCustomerData() {
+    //     try {
+    //         const response = await fetch(getAllCustomerDetails);
+    //         if (!response.ok) {
+    //             throw new Error(`HTTP error! Status: ${response.status}`);
+    //         }
+    //         const data = await response.json();
+    //         customers = data; // Store all customers
+    //     } catch (error) {
+    //         console.error('Error fetching customer data:', error);
+    //     }
+    // }
+
+    async function GetAllCustomerData() {
+        await fetch(getAllCustomerDetails).then(response => response.json())
+            .then(data => {
+                customers = data;
+                
+            })
+            .catch(error => console.error('Error fetching cars:', error));
+    }
+
+    // Add a booking
+    async function AddBooking(carData) {
+        try {
+            await fetch(bookingCarApiURL, {
+                method: 'POST',
+                body: carData,
+            });
+            GetAllCarsData(); // Refresh car data after adding booking
+        } catch (error) {
+            console.error('Error adding booking:', error);
+        }
+    }
+
+    // Generate Booking ID
+    function generateBookingID() {
+        return "B" + Math.floor(1000 + Math.random() * 9000); // Generate a 4-digit random number
+    }
+
+    // Display all cars
     const displayCars = (cars) => {
         const carList = document.getElementById('car-list');
-        carList.innerHTML = '';
+        carList.innerHTML = ''; // Clear previous car listings
         cars.forEach(car => {
             const carDiv = document.createElement('div');
             carDiv.classList.add('car');
             carDiv.innerHTML = `
-                <img src="${car.image}" alt="${car.model}">
+                <img src="http://localhost:5255${car.imagePath}" alt="${car.model}" style="width: 100px; height: auto;" />
                 <h3>${car.brand} ${car.model}</h3>
-                <p>${car.transmission} - ${car.fuel} - ${car.seats} Seats</p>
-                <p>Pricing from Rs.${car.price}/hr</p>
+                <p>${car.transmission} - ${car.fuelType} - ${car.numberOfSeats} Seats</p>
+                <p>Pricing from Rs.${car.pricePerHour}/hr</p>
                 <button class="view-button">View</button>
             `;
-            carDiv.querySelector('.view-button').addEventListener('click', () => {
-                showCarDetails(car);
-                scrollToTop();
+            const loggedUser = JSON.parse(localStorage.getItem('loggedUser'));
+
+            const viewButton = carDiv.querySelector('.view-button');
+
+            viewButton.addEventListener('click', () => {
+                if (!loggedUser) {
+                    window.location.href = `../Customer_login/login.html?`;
+
+                } else {
+
+                    showCarDetails(car);
+                    scrollToTop();
+                }
             });
             carList.appendChild(carDiv);
         });
     };
-
+    // Scroll to the top when viewing car details
     const scrollToTop = () => {
         window.scrollTo({
             top: 0,
-            behavior: 'smooth'
+            behavior: 'smooth',
         });
     };
-
+    // Calculate total rental hours
     const calculateTotalHours = (startDateTime, endDateTime) => {
-        return Math.abs(endDateTime - startDateTime) / 36e5; 
+        return Math.abs(endDateTime - startDateTime) / 36e5; // Convert milliseconds to hours
     };
-
+    // Display selected car details and process booking
     const showCarDetails = (car) => {
         const carDetailsDiv = document.getElementById('car-details');
         const startDate = document.getElementById('start-date').value;
@@ -49,45 +114,42 @@ document.addEventListener('DOMContentLoaded', () => {
         const endDate = document.getElementById('end-date').value;
         const endTime = document.getElementById('end-time').value;
 
+        // Ensure all date and time fields are filled
         if (!startDate || !startTime || !endDate || !endTime) {
             carDetailsDiv.innerHTML = "Please select both start and end dates and times.";
             return;
         }
 
+        const loggedUser = JSON.parse(localStorage.getItem('loggedUser'));
+
+
+        let customer1 = customers.find(p => p.nic === loggedUser.customerNicnumber);
+
         const startDateTime = new Date(`${startDate}T${startTime}`);
         const endDateTime = new Date(`${endDate}T${endTime}`);
         const totalHours = calculateTotalHours(startDateTime, endDateTime);
-        const totalPrice = totalHours * car.price;
+        const totalPrice = totalHours * car.pricePerHour;
 
-        // Get ID from local storage
-        const carsData = getCarsFromLocalStorage();
-        const carId = carsData.find(c => c.brand === car.brand && c.model === car.model).id; // Get the ID based on car's brand and model
-
-        const carDetails = {
-            carId: carId, // Use the retrieved car ID
-            brand: car.brand,
-            model: car.model,
-            image: car.image,
-            transmission: car.transmission,
-            fuel: car.fuel,
-            seats: car.seats,
-            hourlyRate: car.price, 
-            bookingStartDate: startDateTime.toISOString().slice(0, -5), 
-            bookingEndDate: endDateTime.toISOString().slice(0, -5), 
-            totalHours: totalHours.toFixed(2),
-            totalPrice: totalPrice.toFixed(2)
-        };
-
-        carDetailsArray.push(carDetails);
-        saveCarDetailsToLocalStorage();
+        const bookingId = generateBookingID();
+        const formData = new FormData();
+        formData.append("bookingId", bookingId);
+        formData.append("customerId", customer1.id);
+        formData.append("carId", car.carId);
+        formData.append("startDate", startDateTime.toISOString().slice(0, -5));
+        formData.append("endDate", endDateTime.toISOString().slice(0, -5));
+        formData.append("totalPrice", totalPrice.toFixed(2));
+        formData.append("status", 'booked');
+        formData.append("createdDate", new Date().toISOString().slice(0, -5));
+        // Add the booking
+        AddBooking(formData);
 
         carDetailsDiv.innerHTML = `
             <h2>${car.brand} ${car.model}</h2>
-            <img src="${car.image}" alt="${car.model}" style="width: 300px; height: auto;">
+            <img src="http://localhost:5255${car.imagePath}" alt="${car.model}" style="width: 100px; height: auto;" />
             <p><strong>Transmission:</strong> ${car.transmission}</p>
-            <p><strong>Fuel:</strong> ${car.fuel}</p>
-            <p><strong>Seats:</strong> ${car.seats}</p>
-            <p><strong>Price:</strong> Rs.${car.price}/hr</p>
+            <p><strong>Fuel:</strong> ${car.fuelType}</p>
+            <p><strong>Seats:</strong> ${car.numberOfSeats}</p>
+            <p><strong>Price:</strong> Rs.${car.pricePerHour}/hr</p>
             <p><strong>Rental Start Date:</strong> ${startDateTime.toLocaleString()}</p>
             <p><strong>Rental End Date:</strong> ${endDateTime.toLocaleString()}</p>
             <p><strong>Total Hours:</strong> ${totalHours.toFixed(2)} hours</p>
@@ -95,32 +157,27 @@ document.addEventListener('DOMContentLoaded', () => {
             <button id="ContinueBooking">Continue</button>
         `;
 
-        carDetailsDiv.classList.remove('hidden');
         carDetailsDiv.style.display = 'block';
 
         document.getElementById('ContinueBooking').addEventListener('click', () => {
             const loggedUser = JSON.parse(localStorage.getItem('loggedUser'));
+            console.log(loggedUser)
             const isLoggedIn = loggedUser !== null;
 
             if (isLoggedIn) {
-                const customers = JSON.parse(localStorage.getItem('userProfileData')) || [];
-                let customer = customers.find(p => p.customerNicnumber === loggedUser.customerNicnumber);
-
-                if (customer) {
-                    window.location.href = `../Profile_Details/profileupdateform.html?carid=${carId}&customerid=${customer.customerId}`;
+                let customer1 = customers.find(p => p.nic === loggedUser.customerNicnumber);
+                if (customer1.profileStatus= "Verified") {
+                    window.location.href = `../Profile_Details/profileupdateform.html?carid=${car.carId}&customerid=${customer1.id}&bookingId=${bookingId}`;
                 } else {
-                    console.error('Customer not found');
                     alert('Customer information not found. Please contact support.');
                 }
             } else {
-                window.location.href = `../Customer_login/login.html?carid=${carId}`;
+                window.location.href = `../Customer_login/login.html?carid=${car.carId}`;
             }
         });
     };
 
-    const carsData = getCarsFromLocalStorage();
-    displayCars(carsData);
-
+    // Filter form logic
     const filterForm = document.getElementById('filter-form');
     filterForm.addEventListener('submit', (event) => {
         event.preventDefault();
@@ -134,6 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const startDate = document.getElementById('start-date').value;
         const endDate = document.getElementById('end-date').value;
 
+        // Validate start and end dates
         if (!startDate || !endDate) {
             document.getElementById('demo').innerHTML = "Please enter valid start and end dates.";
             return;
@@ -147,22 +205,23 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const filteredCars = carsData.filter(car => {
+        const filteredCars = cars.filter(car => {
             const carAvailableFrom = new Date(car.availableFrom);
             const carAvailableTo = new Date(car.availableTo);
 
             return (!brand || car.brand === brand) &&
                 (!bodyType || car.bodyType === bodyType) &&
                 (!transmission || car.transmission === transmission) &&
-                (!fuelType || car.fuel === fuelType) &&
-                (!seatsnumber || car.seats === seatsnumber) &&
-                (selectedPrice === 'all' || car.price === parseInt(selectedPrice, 10)) &&
+                (!fuelType || car.fuelType === fuelType) &&
+                (!seatsnumber || car.numberOfSeats === seatsnumber) &&
+                (selectedPrice === 'all' || car.pricePerHour === parseInt(selectedPrice, 10)) &&
                 (carAvailableFrom <= end && carAvailableTo >= start);
         });
 
         displayCars(filteredCars);
     });
 
+    // Search button logic
     const searchButton = document.getElementById('search-button');
     searchButton.addEventListener('click', () => {
         const startDate = document.getElementById('start-date').value;
@@ -171,43 +230,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const endTime = document.getElementById('end-time').value;
 
         if (!startDate || !startTime || !endDate || !endTime) {
-            document.getElementById('demo').innerHTML = "Please select both start and end dates and times.";
+            alert("Please select both start and end dates and times.");
             return;
         }
 
-        const start = new Date(`${startDate}T${startTime}`);
-        const end = new Date(`${endDate}T${endTime}`);
-
-        if (start > end) {
-            document.getElementById('demo').innerHTML = "End date and time cannot be earlier than start date and time.";
-            return;
-        }
-
-        const filteredCars = carsData.filter(car => {
-            const carAvailableFrom = new Date(car.availableFrom);
-            const carAvailableTo = new Date(car.availableTo);
-
-            return carAvailableFrom <= end && carAvailableTo >= start;
-        });
-
-        if (filteredCars.length > 0) {
-            displayCars(filteredCars);
-        } else {
-            document.getElementById('demo').innerHTML = "No cars available for the selected dates.";
-            displayCars([]);
-        }
+        GetAllCarsData();
     });
 
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('start-date').setAttribute('min', today);
-    document.getElementById('end-date').setAttribute('min', today);
-    document.addEventListener("DOMContentLoaded", function () {
-        const logoutButton = document.getElementById('logoutButton');
-
-        logoutButton.addEventListener('click', function (event) {
-            event.preventDefault(); // Prevent the default link behavior
-            localStorage.removeItem('loggedUser'); // Clear the logged user from local storage
-            window.location.href = '../Customer_login/login.html'; // Redirect to login page
-        });
-    });
+    // Call fetch functions
+    GetAllCarsData();
+    GetAllCustomerData();
 });
