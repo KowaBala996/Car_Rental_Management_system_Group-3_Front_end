@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td>${BookingCar.endDate || 'N/A'}</td>
                     <td>${rentalCarDetail.fullPayment || '0'}</td>
                     <td>${rentalCarDetail.status || 'Pending'}</td>
-                    <td>${(rentalCarDetail.status === "Approved") ? "Confirmed" : "Pending"}</td>
+                    <td>${(rentalCarDetail.status === "Approved") ? "Pending" : "Confirmed"}</td>
                 `;
                 bookingHistoryTable.appendChild(row);
             });

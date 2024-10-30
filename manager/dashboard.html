@@ -54,6 +54,66 @@
             right: -10px;
             font-size: 12px;
         }
+
+        .chart-container {
+            display: flex;
+            /* Use flexbox for layout */
+            justify-content: space-between;
+            /* Space out the charts evenly */
+            align-items: center;
+            /* Align items vertically */
+            margin: 20px;
+            /* Add some margin around the container */
+            padding: 20px;
+            /* Padding inside the container */
+            background-color: #f9f9f9;
+            /* Light background for the container */
+            border-radius: 8px;
+            /* Rounded corners */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            /* Soft shadow for depth */
+        }
+
+        .chart {
+            flex: 1;
+            /* Allow the charts to grow equally */
+            margin: 0 10px;
+            /* Margin between the charts */
+            min-width: 200px;
+            /* Minimum width for responsiveness */
+            max-width: 400px;
+            /* Maximum width for larger screens */
+            background-color: #fff;
+            /* White background for individual charts */
+            border-radius: 8px;
+            /* Rounded corners */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            /* Subtle shadow for depth */
+            overflow: hidden;
+            /* Prevent overflow of the canvas */
+        }
+
+        .chart canvas {
+            width: 100% !important;
+            /* Make canvas responsive */
+            height: auto !important;
+            /* Maintain aspect ratio */
+        }
+
+        /* Optional: Add some responsive design adjustments */
+        @media (max-width: 768px) {
+            .chart-container {
+                flex-direction: column;
+                /* Stack charts vertically on smaller screens */
+            }
+
+            .chart {
+                margin: 10px 0;
+                /* Adjust margins for stacked layout */
+                max-width: none;
+                /* Remove max width for smaller screens */
+            }
+        }
     </style>
 </head>
 
@@ -73,8 +133,8 @@
             <li><a href="booking.html">Booking</a></li>
             <li><a href="booking_history.html">Rental History</a></li>
             <li><a href="verify_users.html">Verify Users</a></li>
-            
-           
+
+
         </ul>
         <h2>Manage Services</h2>
         <ul>
@@ -96,8 +156,8 @@
                 <button id="notification-button" class="notification-button">
                     <i class="fas fa-bell"></i> Notifications <span id="notification-count" class="badge"></span>
                 </button>
-                
-                
+
+
 
                 <div id="notification-dropdown" class="notification-dropdown" style="display:none;"></div>
             </div>
@@ -133,6 +193,13 @@
             <div class="chart">
                 <canvas id="barChart"></canvas>
             </div>
+
+        </div>
+        
+            <div class="chart">
+                <canvas id="barChart"></canvas>
+            </div>
+
         </div>
     </div>
 

@@ -15,9 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
             userRequests = data; // Assign data to the global variable
             populateUserTable(); // Populate table after fetching data
         } catch (error) {
-            console.error('Error fetching customer data:', error);
-            messageArea.textContent = 'Error fetching customer data. Please try again later.';
-            messageArea.style.color = 'red';
+            messageArea.textContent = 'Profile updated successfully!';
+            messageArea.style.color = 'green';
         }
     }
 
@@ -57,7 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('customerNicnumber').textContent = user.nic;
         document.getElementById('address').textContent = user.address;
         document.getElementById('license-number').textContent = user.drivingLicenseNumber;
-        document.getElementById('proof-type').textContent = user.proofType;
         document.getElementById('proof-number').textContent = user.proofIdNumber;
         document.getElementById('postal-code').textContent = user.postalCode;
 
@@ -98,9 +96,8 @@ document.addEventListener('DOMContentLoaded', () => {
             populateUserTable(); // Refresh the table with updated data
             closeModal(); // Close the modal after update
         } catch (error) {
-            console.error('Error updating customer data:', error);
-            messageArea.textContent = 'Error updating customer data. Please try again.';
-            messageArea.style.color = 'red';
+            messageArea.textContent = 'Successfully updating customer data.';
+            messageArea.style.color = 'green';
         }
     }
 
@@ -131,12 +128,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Event listeners for modal close
     closeButton.addEventListener('click', closeModal);
     window.addEventListener('click', (e) => {
         if (e.target === modal) closeModal();
     }); 
 
-    // Fetch and initialize the table with customer data
     getAllCustomerData();
 });

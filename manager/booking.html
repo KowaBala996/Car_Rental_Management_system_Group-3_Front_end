@@ -77,31 +77,6 @@
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5); /* Add a custom focus ring */
 }
 
-/* Modal Styles */
-.modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
-    transition: opacity 0.5s; /* Fade in/out effect */
-}
-
-.modal-content {
-    background-color: #f5f2f2; /* Modal background color */
-    margin: 15% auto; /* Centered modal */
-    padding: 20px; /* Padding inside modal */
-    border: 1px solid #a7a5a5; /* Border color */
-    width: 30%; /* Width of modal */
-    max-width: 600px; /* Max width of modal */
-    border-radius: 5px; /* Rounded corners */
-    font-size: 16px; /* Font size */
-    font-weight: bold; /* Bold text */
-}
 
 .close {
     color: #141414; /* Close button color */
@@ -241,17 +216,24 @@ footer {
     <div id="rentalModal" class="modal">
         <div class="modal-content">
             <span class="close-rental-modal">&times;</span>
-            <h2>Rental Confirmation</h2>
-            <p>Booking ID: <span id="modalBookingId"></span></p>
-            <p>Customer Name: <span id="modalCustomerName"></span></p>
-            <p>Car Model: <span id="modalCarModel"></span></p>
-            <label for="rentalStartDate">Rental Start Date:</label>
-            <input type="date" id="rentalStartDate">
-            <label for="halfPayment">Full Payment:</label>
-            <input type="number" id="halfPayment" step="100">
-            <button id="confirmRental">Confirm Rental</button>
+            <h2>Rental Details</h2>
+            <form id="rentalForm">
+                <p>Booking ID: <span id="modalBookingId"></span></p>
+                <p>Customer Name: <span id="modalCustomerName"></span></p>
+                <p>Car Model: <span id="modalCarModel"></span></p>
+                <p>Total Price: <span id="totalPrice"></span></p>
+                
+                <label for="rentalStartDate">Rental Start Date:</label>
+                <input type="date" id="rentalStartDate" required>
+    
+                <label for="fullPayment1">Full Payment:</label>
+                <input type="number" id="fullPayment1" required>
+    
+                <button type="submit" id="submitRental">Confirm Rental</button>
+            </form>
         </div>
     </div>
+    
     
    
 
@@ -313,12 +295,9 @@ footer {
                     <label for="paymentStatus">Payment Status:</label>
                     <span id="paymentStatus" class="details"></span>
                 </div>
+                
                 <div class="section">
-                    <label for="proof-type">Proof Type:</label>
-                    <span id="proof-type" class="details"></span>
-                </div>
-                <div class="section">
-                    <label for="proof-number">Proof Number:</label>
+                    <label for="proof-number">Proof Utility Bill Number:</label>
                     <span id="proof-number" class="details"></span>
                 </div>
 

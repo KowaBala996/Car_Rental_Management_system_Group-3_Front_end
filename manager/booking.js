@@ -3,6 +3,7 @@ let getAllBookingCar = [];
 let customers = [];
 let cars = [];
 
+// Load booking details from the API
 async function loadBookingDetails() {
     const getAllBookingPaymentUrl = 'http://localhost:5255/api/BookingPayment';
     const getAllBookingCarDetailsUrl = 'http://localhost:5255/api/Booking';
@@ -37,6 +38,7 @@ async function loadBookingDetails() {
     }
 }
 
+// Populate the booking table with data
 function populateBookingTable() {
     const bookingTableBody = document.getElementById('booking-requests');
     bookingTableBody.innerHTML = '';
@@ -60,15 +62,16 @@ function populateBookingTable() {
                 <td>${booking.amount || '0'}</td>
                 <td>${new Date(BookingCar?.startDate).toLocaleDateString() || 'N/A'}</td>
                 <td>${new Date(BookingCar?.endDate).toLocaleDateString() || 'N/A'}</td>
-                <td class="status-cell">${booking.bookingStatus || 'Pending'}</td>
+                <td class="status-cell">${booking.bookingStatus || 'Approved'}</td>
                 <td>
                     <button class="action-button approve" onclick="updateBookingStatus('${booking.bookingId}', 'Approved')">Approve</button>
                     <button class="action-button reject" onclick="updateBookingStatus('${booking.bookingId}', 'Rejected')">Reject</button>
                     <button class="action-button view" onclick="openBookingModal('${booking.bookingId}')">View Details</button>
                 </td>
                 <td>
-                    <button class="rentalBtn" onclick="openRentalModal('${booking.bookingId}')">Rental</button>
+                    <button class="rentalBtn" id="rentalBtn-${booking.bookingId}" onclick="openRentalModal('${booking.bookingId}')">Rental</button>
                 </td>
+
             `;
             bookingTableBody.appendChild(bookingRow);
         });
@@ -79,6 +82,7 @@ function populateBookingTable() {
     }
 }
 
+// Update booking payment data on the server
 async function updateBookingPaymentData(formData) {
     const updateBookingStatusUrl = `http://localhost:5255/api/BookingPayment/${formData.get('bookingId')}`;
     try {
@@ -94,6 +98,7 @@ async function updateBookingPaymentData(formData) {
     }
 }
 
+// Update booking status to Approved or Rejected
 async function updateBookingStatus(bookingId, newStatus) {
     const booking = AllBookingPayment.find(b => b.bookingId === bookingId);
 
@@ -112,64 +117,132 @@ async function updateBookingStatus(bookingId, newStatus) {
     }
 }
 
-async function openRentalModal(bookingId) {
+
+// Open rental modal and populate it with booking details
+async function openRentalModal(bookId) {
     const modal = document.getElementById("rentalModal");
     modal.style.display = "block"; // Show the modal
 
-    const BookingCar = getAllBookingCar.find(b => b.bookingId === bookingId);
-    const BookingPay = AllBookingPayment.find(b => b.bookingId === bookingId);
+    const BookingCar = getAllBookingCar.find(b => b.bookingId === bookId);
+    const BookingPay = AllBookingPayment.find(b => b.bookingId === bookId);
     const customer = customers.find(c => c.id === BookingCar?.customerId);
-    const car = cars.find(c => c.id === BookingCar?.carId);
+    const car = cars.find(c => c.carId === BookingCar?.carId);
+    
 
-    if (BookingPay && car && customer) {
-        document.getElementById('modalBookingId').textContent = BookingPay.bookingId;
+    if (BookingPay) {
+        document.getElementById('modalBookingId').textContent = BookingCar.bookingId;
         document.getElementById('modalCustomerName').textContent = customer.name;
         document.getElementById('modalCarModel').textContent = car.model;
+        document.getElementById('totalPrice').textContent = BookingCar.totalPrice;
 
-        // Set up the close button event
-        const closeRentalModalBtn = document.querySelector(".close-rental-modal");
-        closeRentalModalBtn.onclick = function() {
-            modal.style.display = "none"; // Close the modal when clicked
-        };
+        // Set up rental form submission
+        const rentalForm = document.getElementById('rentalForm');
+        rentalForm.onsubmit = async (e) => {
+            e.preventDefault(); // Prevent default form submission
 
-        // Set up the confirm button event
-        document.getElementById('confirmRental').onclick = () => {
-            const rentalStartDate = document.getElementById('rentalStartDate').value;
-            const fullPayment = document.getElementById('halfPayment').value;
+            const fullPayment = document.getElementById('fullPayment1').value;
+            const rentalStartDate = document.getElementById('rentalStartDate').value; // Ensure you have this input in your form
 
             if (!rentalStartDate || !fullPayment) {
                 alert("Please enter all required fields.");
                 return;
             }
 
-            // Process rental confirmation logic here if needed
-            modal.style.display = "none"; // Close the modal after confirmation
-            loadBookingDetails(); // Reload booking details
+            const rentalId = 'Ren_' + Math.floor(Math.random() * 1000);
+
+            const formData = new FormData();
+            formData.append("rentalId", rentalId);
+            formData.append("bookingId", BookingCar.bookingId);
+            formData.append("rentalDate", rentalStartDate);
+            formData.append("fullPayment", fullPayment);
+            formData.append("status", "Rented");
+
+            await AddRentalDetail(formData);
+
+
+            loadBookingDetails(); // Reload booking details to reflect changes
+            const closeRentalModalBtn = document.querySelector(".close-rental-modal");
+            closeRentalModalBtn.onclick = function () {
+                modal.style.display = "none";
+            };
+            
         };
+        const rentalButton = document.getElementById(`rentalBtn-${bookId}`);
+        rentalButton.textContent = "Rented"; // Update button text
+
+        // Close modal button
+        const submitRental = document.querySelector("#submitRental");
+        submitRental.onclick = function () {
+            modal.style.display = "none";
+        };
+        
     }
-    closeRentalModalBtn.onclick = function() {
-        console.log("Close button clicked"); // Debugging line
-        modal.style.display = "none"; // Close the modal when clicked
+
+    // Close the modal when the user clicks outside of it
+    window.onclick = function (event) {
+        if (event.target === modal) {
+            modal.style.display = "none"; // Close the modal if clicked outside
+        }
+    }
+}
+
+
+function openBookingModal(bookingId) {
+    // Fetch the booking car and payment details based on bookingId
+    const BookingCar = getAllBookingCar.find(b => b.bookingId === bookingId);
+    const BookingPay = AllBookingPayment.find(b => b.bookingId === bookingId);
+    const car = cars.find(c => c.carId === BookingCar?.carId); // Ensure we use carId from BookingCar
+    const customer = customers.find(c => c.id === BookingCar?.customerId); // Ensure we use customerId from BookingCar
+
+    // If all relevant data is found, populate the modal
+    if (BookingCar && car && customer) {
+        document.getElementById('bookingId').textContent = BookingCar.bookingId;
+        document.getElementById('bookingDate').textContent = new Date(BookingPay.paymentDate).toLocaleDateString();
+        document.getElementById('customerid').textContent = customer.id;
+        document.getElementById('name').textContent = customer.name;
+        document.getElementById('rentalCarId').textContent = BookingCar.carId;
+        document.getElementById('email').textContent = customer.email;
+        document.getElementById('phone').textContent = customer.phone;
+        document.getElementById('address').textContent = customer.address;
+        document.getElementById('license-number').textContent = customer.drivingLicenseNumber;
+        document.getElementById('paymentAmount').textContent = BookingCar.totalPrice;
+        document.getElementById('paymentStatus').textContent = BookingPay.status;
+        document.getElementById('proof-number').textContent = customer.proofIdNumber;
+        document.getElementById('brand').textContent = car.brand;
+        document.getElementById('model').textContent = car.model;
+        document.getElementById('fuel').textContent = car.fuelType;
+        document.getElementById('seats').textContent = car.numberOfSeats;
+        document.getElementById('price').textContent = car.pricePerHour;
+        document.getElementById('availableFrom').textContent = new Date(BookingCar.startDate).toLocaleDateString();
+        document.getElementById('availableTo').textContent = new Date(BookingCar.endDate).toLocaleDateString();
+    }
+
+    // Display the modal
+    const modal = document.getElementById("myModal");
+    modal.style.display = "block";
+
+    // Close modal functionality
+    const closeBtn = document.querySelector(".close");
+    closeBtn.onclick = () => {
+        modal.style.display = "none";
     };
-    
+
+    // Close the modal when clicking outside of it
+    window.onclick = function (event) {
+        if (event.target === modal) {
+            modal.style.display = "none"; // Close the modal if clicked outside
+        }
+    };
 }
 
-
-// Close the modal when the user clicks anywhere outside of it
-window.onclick = function(event) {
-    const modal = document.getElementById("rentalModal");
-    if (event.target === modal) {
-        modal.style.display = "none"; // Close the modal if clicked outside
-    }
-}
-
-
-// Close the modal when the user clicks anywhere outside of it
-window.onclick = function(event) {
-    const modal = document.getElementById("rentalModal");
-    if (event.target === modal) {
-        modal.style.display = "none"; // Close the modal if clicked outside
-    }
+// Add rental details to the server
+async function AddRentalDetail(formData) {
+    const addRentalDetailURL = 'http://localhost:5255/api/RentalDetail';
+    await fetch(addRentalDetailURL, {
+        method: 'POST',
+        body: formData
+    });
+    GetAllCarsData(); // Ensure to refresh the car data after adding rental
 }
 
 // Call loadBookingDetails on window load

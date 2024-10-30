@@ -54,6 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const rentalDetails = await fetchData('http://localhost:5255/api/RentalDetail');
         const bookingCars = await fetchData('http://localhost:5255/api/Booking');
+        const getAllCarDetails = await fetchData('http://localhost:5255/api/Manager/get-all-cars');
+
 
         bookingHistoryContainer.innerHTML = '';
 
@@ -67,17 +69,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         userBookings.forEach(b => {
             const rentalDetail = rentalDetails.find(r => r.bookingId === b.bookingId) || {};
+           const carname =getAllCarDetails.find(c=>c.carId==b.carId)
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${b.bookingId || "N/A"}</td>
                 <td>${b.customerId || "N/A"}</td>
-                <td>${b.carId || "N/A"}</td>
-                <td>${b.totalPrice || "N/A"}</td>
+                <td>${carname.brand || "N/A"}</td>
+                <td>${carname.model || "N/A"}</td>
                 <td>${b.startDate || "N/A"}</td>
                 <td>${b.endDate || "N/A"}</td>
-                <td>${rentalDetail.rentalDateFrom || "N/A"}</td>
-                <td>${rentalDetail.halfPayment || "N/A"}</td>
-                <td>${rentalDetail.status || "N/A"}</td>
+                <td>${rentalDetail.fullPayment || "Not Pay"}</td>
+                <td>${rentalDetail.status || "Pending"}</td>
+                <td>${rentalDetail.rentalDate || "Not rent"}</td>
             `;
             bookingHistoryContainer.appendChild(row);
         });

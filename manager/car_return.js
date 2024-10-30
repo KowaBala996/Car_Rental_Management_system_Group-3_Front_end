@@ -1,4 +1,4 @@
-const addReturnDetailUrl = 'http://localhost:5255/api/ReturnDetail';
+const addReturnDetailUrl = 'http://localhost:5255/api/ReturnDetail/Add-ReturnDetail';
 const rentalDetailsUrl = 'http://localhost:5255/api/RentalDetail';
 const bookingDetailsUrl = 'http://localhost:5255/api/Booking';
 const returnDetailsUrl = 'http://localhost:5255/api/ReturnDetail';
@@ -50,7 +50,6 @@ async function AddReturnDetail(formData) {
         console.error('Error adding return detail:', error);
         alert("Failed to add return detail. Please try again.");
     }
-    
 }
 
 // Populate rental car ID options and handle form submission
@@ -63,43 +62,52 @@ async function populateRentalCarIdOptions() {
     const conditionDetails = document.getElementById("condition");
     const extraPaymentInput = document.getElementById("extraPayment");
 
-    rentalIdSelect.innerHTML = '<option value=""></option>'; 
+    // Clear previous options
+    rentalIdSelect.innerHTML = '<option value=""></option>';
+
+    // Create a set of returned rental IDs to filter out already returned rentals
+    const returnedRentalIds = new Set(returnDetail.map(r => r.rentalId));
+
     rentalDetail.forEach(booking => {
-        const option = document.createElement('option');
-        option.value = booking.rentalId;
-        option.textContent = booking.rentalId;
-        rentalIdSelect.appendChild(option);
+        if (!returnedRentalIds.has(booking.rentalId)) { // Only include rentals not in returnDetail
+            const option = document.createElement('option');
+            option.value = booking.rentalId;
+            option.textContent = booking.rentalId;
+            rentalIdSelect.appendChild(option);
+        }
     });
 
+    // Add event listener to populate start date and return date on selection
     rentalIdSelect.addEventListener('change', function () {
         const selectedRentalCarId = this.value;
         const selectedRentalDetail = rentalDetail.find(r => r.rentalId === selectedRentalCarId);
         const bookingCarDetails = selectedRentalDetail ? bookingDetail.find(c => c.bookingId === selectedRentalDetail.bookingId) : null;
 
         rentalStartDateInput.value = selectedRentalDetail ? bookingCarDetails.startDate : '';
-        returnDateInput.value = selectedRentalDetail ? selectedRentalDetail.returnDate : ''; // Set return date here
+        returnDateInput.value = selectedRentalDetail ? selectedRentalDetail.returnDate : '';
     });
 
     document.getElementById('booking-form').addEventListener("submit", async function (event) {
         event.preventDefault();
 
-        const ReturnId = 'Ret_' + String(Math.floor(1000 + Math.random() * 9000)); // Generate unique Return ID
+        const ReturnId = 'Ret_' + String(Math.floor(1000 + Math.random() * 9000));
 
-        // Gather form data
+        // Prepare form data
         const formData = new FormData();
         formData.append("returnId", ReturnId);
-        formData.append("rentalId", rentalIdSelect.value); // Get selected rental ID
-        formData.append("startDate", rentalStartDateInput.value); // Get start date
-        formData.append("returnDate", returnDateInput.value); // Get return date
-        formData.append("extraPayment", extraPaymentInput.value); // Get extra payment
-        formData.append("condition", conditionDetails.value); // Get condition
+        formData.append("rentalId", rentalIdSelect.value);
+        formData.append("startDate", rentalStartDateInput.value);
+        formData.append("returnDate", returnDateInput.value);
+        formData.append("lateFees", extraPaymentInput.value);
+        formData.append("condition", conditionDetails.value);
 
-        // Call the AddReturnDetail function with the form data
+        // Call the function to add return detail
         await AddReturnDetail(formData);
 
-        // Refresh the table with updated return details and close the modal
+        // Fetch and populate return details again
         await fetchReturnDetails();
         populateTable(returnDetail);
+
         closeModal();
     });
 
@@ -121,6 +129,20 @@ function populateTable(details) {
         `;
         tableBody.appendChild(row);
     });
+}
+
+const rentalDetailApiURL = 'http://localhost:5255/api/RentalDetail/';
+
+// Delete car from the database
+async function RentalDetailFromDatabase(id) {
+    await fetch(rentalDetailApiURL + id, {
+        method: 'DELETE'
+    });
+    GetAllCarsData();
+}
+
+function DeleteRentalDetail(id) {
+    RentalDetailFromDatabase(id);
 }
 
 // Modal functionality

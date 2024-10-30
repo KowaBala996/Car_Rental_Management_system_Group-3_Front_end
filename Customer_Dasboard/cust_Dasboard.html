@@ -79,6 +79,59 @@
             transform: scale(1.05);
         }
 
+        /* Notification Styles */
+        .notification-icon {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .notification-icon:hover {
+            color: #f39c12;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
         /* Content Section Styles */
         .content {
             flex-grow: 1;
@@ -212,13 +265,13 @@
                     <tr>
                         <th>Booking ID</th>
                         <th>Customer ID</th>
-                        <th>Car ID</th>
-                        <th>Booking Date</th>
+                        <th>Car Brand</th>
+                        <th>Car Model</th>
                         <th>Rental Start Date</th>
                         <th>Rental End Date</th>
-                        <th>Advance Payment</th>
-                        <th>Payment Status</th>
-                        <th>Booking Status</th>
+                        <th>Full Payment</th>
+                        <th>Rental Status</th>
+                        <th>Rental Date</th>
                     </tr>
                 </thead>
                 <tbody id="booking-history">
@@ -228,11 +281,47 @@
         </div>
     </div>
 
+    <div class="notification-icon" id="notification-icon">
+        <i class="fas fa-bell"></i>
+    </div>
+
+    <div class="modal" id="notification-modal">
+        <div class="modal-content">
+            <span class="close" id="close-modal">&times;</span>
+            <h2>Overdue Notifications</h2>
+            <p id="overdue-message">You have overdue rentals! Please return them as soon as possible.</p>
+        </div>
+    </div>
+
     <footer>
         &copy; 2024 MileStone 2 Car Rental Services. All Rights Reserved.
     </footer>
 
     <script src="customerDashboard.js"></script>
+    <script>
+        // Get modal elements
+        const modal = document.getElementById('notification-modal');
+        const notificationIcon = document.getElementById('notification-icon');
+        const closeModal = document.getElementById('close-modal');
+
+        // Show modal on icon click
+        notificationIcon.onclick = function () {
+            modal.style.display = "block";
+        }
+
+        // Close modal when close button is clicked
+        closeModal.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        // Close modal when clicking outside of the modal
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+    </script>
 </body>
 
 </html>

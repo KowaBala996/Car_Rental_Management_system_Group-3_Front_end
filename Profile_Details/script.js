@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         saveProfileData();
         showNotification("Profile updated successfully!");
+        scrollToTop();
     });
 
     function validateCustomerDetails() {
@@ -172,4 +173,12 @@ document.addEventListener("DOMContentLoaded", function () {
         // Redirect to the login page after logout
         window.location.href = '../Customer_login/login.html';
     });
+
+    // Scroll to the top when viewing car details
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth',
+        });
+    };
 });

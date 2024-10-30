@@ -5,8 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let cars = [];
     let customers = [];
-    console.log(cars)
-    console.log(customers)
+    
 
     // Fetch all car details
     async function GetAllCarsData() {
@@ -23,25 +22,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // // Fetch all customer details
-    // async function GetAllCustomerData() {
-    //     try {
-    //         const response = await fetch(getAllCustomerDetails);
-    //         if (!response.ok) {
-    //             throw new Error(`HTTP error! Status: ${response.status}`);
-    //         }
-    //         const data = await response.json();
-    //         customers = data; // Store all customers
-    //     } catch (error) {
-    //         console.error('Error fetching customer data:', error);
-    //     }
-    // }
+  
 
     async function GetAllCustomerData() {
         await fetch(getAllCustomerDetails).then(response => response.json())
             .then(data => {
                 customers = data;
-                
+
             })
             .catch(error => console.error('Error fetching cars:', error));
     }
@@ -58,6 +45,38 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error adding booking:', error);
         }
     }
+
+    let AllBookingPayment = [];
+    let getAllBookingCar = [];
+
+
+    // Load booking details from the API
+    async function loadBookingDetails() {
+        const getAllBookingPaymentUrl = 'http://localhost:5255/api/BookingPayment';
+        const getAllBookingCarDetailsUrl = 'http://localhost:5255/api/Booking';
+       
+        try {
+            // Fetch all booking payment data
+            const paymentResponse = await fetch(getAllBookingPaymentUrl);
+            if (!paymentResponse.ok) throw new Error(`HTTP error! Status: ${paymentResponse.status}`);
+            AllBookingPayment = await paymentResponse.json();
+
+            // Fetch all booking car details
+            const carDetailsResponse = await fetch(getAllBookingCarDetailsUrl);
+            if (!carDetailsResponse.ok) throw new Error(`HTTP error! Status: ${carDetailsResponse.status}`);
+            getAllBookingCar = await carDetailsResponse.json();
+
+          
+
+            // Populate the booking table
+            populateBookingTable();
+        } catch (error) {
+            console.error('Error loading booking details:', error);
+        }
+    }
+    loadBookingDetails();
+    getAllBookingCar.forEach(c=>c.bookingId==AllBookingPayment.bookingId)
+
 
     // Generate Booking ID
     function generateBookingID() {
@@ -166,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (isLoggedIn) {
                 let customer1 = customers.find(p => p.nic === loggedUser.customerNicnumber);
-                if (customer1.profileStatus= "Verified") {
+                if (customer1.profileStatus = "Verified") {
                     window.location.href = `../Profile_Details/profileupdateform.html?carid=${car.carId}&customerid=${customer1.id}&bookingId=${bookingId}`;
                 } else {
                     alert('Customer information not found. Please contact support.');
